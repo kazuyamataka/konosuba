@@ -1,0 +1,292 @@
+<meta charset="utf-8">
+<title>このすば 設定推測カウンター</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+:root{--bg:#151109;--panel:#1F1A11;--panel2:#2A2217;--line:#3B3123;
+ --amber:#F2A62A;--amber2:#8A6318;--teal:#3FC79A;--ink:#F2EADB;--ink2:#A79880;--ink3:#6E6353}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button{touch-action:pan-y}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;padding-bottom:28px;
+ font-family:-apple-system,"Helvetica Neue","Hiragino Sans","Noto Sans JP",sans-serif}
+.seg{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+header{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
+h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.03em;flex:1}
+.tot{font-size:12px;color:var(--ink3)}
+section{padding:16px;border-bottom:1px solid var(--line)}
+.lbl{font-size:11px;letter-spacing:.11em;color:var(--ink3);text-transform:uppercase;margin:0 0 9px}
+.chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.chip{padding:11px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink2);
+ border-radius:9px;font-size:13px;text-align:center;font-family:inherit;cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--amber);color:var(--amber);background:var(--panel2)}
+.chip small{display:block;font-size:10px;color:var(--ink3);margin-top:1px}
+.chip[aria-pressed=true] small{color:var(--amber2)}
+.grp{margin-bottom:14px}
+.gh{font-size:12px;color:var(--ink2);margin:0 0 7px;display:flex;justify-content:space-between}
+.gh em{font-style:normal;color:var(--ink3);font-size:11px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tap{padding:14px 8px;border:1px solid var(--line);background:var(--panel);border-radius:11px;
+ color:var(--ink);font-family:inherit;cursor:pointer;text-align:center}
+.tap:active{background:var(--panel2)}
+.tap b{display:block;font-size:26px;font-weight:500;line-height:1.15}
+.tap span{font-size:11.5px;color:var(--ink3)}
+.tap.on b{color:var(--teal)}
+.tap.off b{color:var(--ink2)}
+.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.rn{flex:1}.rn b{display:block;font-weight:400;font-size:14px}
+.rn i{font-style:normal;font-size:11px;color:var(--ink3)}
+.val{width:56px;text-align:right;font-size:25px;color:var(--amber);font-weight:500}
+.btn{width:44px;height:44px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
+ border-radius:11px;font-size:20px;font-family:inherit;cursor:pointer;line-height:1}
+.btn.m{width:38px;height:38px;color:var(--ink3);font-size:21px}
+.wide{width:100%;padding:14px;border-radius:11px;border:1px solid var(--amber);background:var(--panel2);
+ color:var(--amber);font-size:15px;font-family:inherit;cursor:pointer;margin-top:12px}
+.wide:disabled{border-color:var(--line);color:var(--ink3);background:var(--panel)}
+.ghost{border-color:var(--line);color:var(--ink3);background:transparent;margin-top:8px}
+.bar{display:flex;align-items:center;gap:9px;margin:5px 0}
+.bk{width:22px;font-size:13px;color:var(--ink2)}
+.bt{flex:1;height:14px;background:var(--panel);border-radius:4px;overflow:hidden}
+.bf{height:100%;background:var(--amber);transition:width .25s}
+.bv{width:50px;text-align:right;font-size:13px;color:var(--ink2)}
+.bands{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:13px}
+.bc{background:var(--panel);border-radius:9px;padding:10px 4px;text-align:center}
+.bc b{display:block;font-size:21px;font-weight:500;color:var(--amber)}
+.bc span{font-size:10px;color:var(--ink3);letter-spacing:.05em}
+.h{font-size:12.5px;color:var(--ink2);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:8px}
+.h span{flex:1}
+.x{border:0;background:none;color:var(--ink3);font-size:17px;cursor:pointer;font-family:inherit}
+.note{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:11px}
+.empty{color:var(--ink3);font-size:13px;padding:12px 0}
+</style>
+
+<header><h1>このすば 設定推測</h1><div class="tot seg" id="tot"></div></header>
+
+<section>
+  <p class="lbl">有利区間 1G目の成立役</p>
+  <div class="chips" id="roles"></div>
+</section>
+
+<section>
+  <p class="lbl">セット記録（1タップ＝1セット）</p>
+  <div class="grp">
+    <p class="gh"><span>1巡目の2〜6セット目</span><em>アクア以外</em></p>
+    <div class="pair">
+      <button class="tap on" data-t="b1"><b id="v-b1">0</b><span>SKW移行</span></button>
+      <button class="tap off" data-t="b0"><b id="v-b0">0</b><span>非移行</span></button>
+    </div>
+  </div>
+  <div class="grp">
+    <p class="gh"><span>それ以外のセット</span><em>1巡目アクア・2巡目以降</em></p>
+    <div class="pair">
+      <button class="tap on" data-t="a1"><b id="v-a1">0</b><span>SKW移行</span></button>
+      <button class="tap off" data-t="a0"><b id="v-a0">0</b><span>非移行</span></button>
+    </div>
+  </div>
+  <div id="counters"></div>
+  <button class="wide ghost" id="undo">直前の1タップを取り消す</button>
+  <button class="wide" id="commit">この有利区間を確定して次へ</button>
+</section>
+
+<section>
+  <p class="lbl">AT終了時ボイス（全区間通しで計上）</p>
+  <div id="voices"></div>
+  <button class="wide ghost" id="vundo">直前のボイス1タップを取り消す</button>
+</section>
+
+<section>
+  <p class="lbl">設定推測（事後確率）</p>
+  <div id="post"></div>
+  <div class="bands" id="bands"></div>
+  <div class="note" id="sum"></div>
+</section>
+
+<section>
+  <p class="lbl">確定済みの有利区間</p>
+  <div id="hist"></div>
+  <button class="wide ghost" id="reset">全データを消去</button>
+</section>
+
+<script>
+const ROLES=[{k:'other',n:'下記以外',s:'その他の小役・ハズレ'},
+ {k:'bara',n:'バラケ目リプレイ',s:'最も情報量が大きい'},
+ {k:'weak',n:'弱キャラ役',s:'各1/19.2'},
+ {k:'strong',n:'強キャラ役',s:'各1/240・設定差なし'}];
+
+const LDIST={
+ other:[[50.00,45.31,3.91,0.78],[46.88,45.31,7.03,0.78],[46.88,45.31,4.69,3.13],
+        [43.75,45.31,9.38,1.56],[44.14,45.31,6.25,4.30],[38.28,45.31,11.72,4.69]],
+ bara: [[34.38,31.25,25.00,9.38],[26.56,31.25,31.25,10.94],[24.22,31.25,25.78,18.75],
+        [21.88,31.25,34.38,12.50],[17.97,31.25,26.56,24.22],[6.25,31.25,37.50,25.00]],
+ weak: [[35.94,45.31,17.19,1.56],[29.69,45.31,23.44,1.56],[32.03,45.31,17.97,4.69],
+        [27.34,45.31,24.22,3.13],[27.34,45.31,18.75,8.59],[20.31,45.31,25.00,9.38]],
+ strong:[[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25]]};
+
+const A=[
+ [[92.19,.39,.39,6.25,.39,.39],[92.19,.39,.39,6.25,.39,.39],[89.84,.78,.78,7.03,.78,.78],
+  [87.50,1.17,1.17,7.81,1.17,1.17],[84.38,1.95,1.95,8.59,1.56,1.56],[82.03,2.34,2.34,9.38,1.95,1.95]],
+ [[80.47,5.86,.39,12.50,.39,.39],[80.47,5.86,.39,12.50,.39,.39],[76.56,7.81,.78,13.28,.78,.78],
+  [71.48,10.94,1.17,14.06,1.17,1.17],[66.80,12.50,1.95,14.84,1.95,1.95],[63.28,14.06,2.34,15.63,2.34,2.34]],
+ [[20.31,43.75,6.25,25.00,3.13,1.56],[20.31,43.75,6.25,25.00,3.13,1.56],[17.19,43.75,7.03,25.78,3.91,2.34],
+  [14.06,43.75,7.81,26.56,4.69,3.13],[10.94,43.75,8.59,27.34,5.47,3.91],[7.81,43.75,9.38,28.13,6.25,4.69]],
+ [[12.5,12.5,12.5,25,12.5,25],[12.5,12.5,12.5,25,12.5,25],[12.5,12.5,12.5,25,12.5,25],
+  [12.5,12.5,12.5,25,12.5,25],[12.5,12.5,12.5,25,12.5,25],[12.5,12.5,12.5,25,12.5,25]]
+].map(l=>l.map(v=>v.map(x=>x/100)));
+
+const B=[
+ [[151,1,1,101,1,1],[151,1,1,101,1,1],[146,2,2,102,2,2],[141,3,3,103,3,3],[134,5,5,104,4,4],[129,6,6,105,5,5]],
+ [[128,15,1,110,1,1],[128,15,1,110,1,1],[116,20,2,114,2,2],[107,24,3,116,3,3],[92,32,5,118,5,4],[83,36,6,120,6,5]],
+ [[64,48,16,112,14,2],[64,48,16,112,14,2],[54,48,20,114,16,4],[42,48,24,118,18,6],[32,48,28,120,20,8],[22,48,32,122,22,10]],
+ [[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32]]
+].map(l=>l.map(v=>v.map(x=>x/256)));
+
+const WEAK=[0.004,0.031,0.137],STRONG=[0.512,0.891,1.315],
+      BAR=[20/194.7,20/129.3,20/86.2],WEAKN=20/3.2;
+
+// AT終了時ボイス（多項）。各行[設定1..6]の出現率。全区間通しで独立計上。
+const VOICES=[
+ {k:'v0',n:'もっと私を〜',s:'無地・奇数寄り',p:[66.81,53.54,63.76,50.87,60.25,48.43]},
+ {k:'v1',n:'では〜',      s:'無地・偶数寄り',p:[30.52,38.15,30.52,38.15,30.52,38.15]},
+ {k:'v2',n:'さあ！私と〜',s:'偶数示唆',    p:[0.76,4.58,1.14,4.58,1.53,4.58]},
+ {k:'v3',n:'前から〜',    s:'高設定ほど微増',p:[1.53,1.91,2.29,2.67,2.90,3.05]},
+ {k:'v4',n:'人が深淵を〜',s:'高設定ほど増加',p:[0.38,0.76,1.14,1.91,2.29,2.67]},
+ {k:'v5',n:'そっちの名前で〜',s:'設定2以上',p:[0,1.07,1.14,1.22,1.30,1.37]},
+ {k:'v6',n:'真の男女平等〜',s:'設定4以上', p:[0,0,0,0.61,0.69,0.76]},
+ {k:'v7',n:'でーがらーし〜',s:'設定5以上', p:[0,0,0,0,0.53,0.61]},
+ {k:'v8',n:'この邂逅は〜',s:'設定6のみ',  p:[0,0,0,0,0,0.38]}];
+const VEPS=1e-4; // 0%ボイスの床（誤タップ・丸め対策で完全排除は避ける）
+// ボイス観測の設定別対数尤度（多項の定数項は設定間共通なので省略）
+function voiceLog(vc,s){let t=0;
+ for(let i=0;i<VOICES.length;i++){const c=vc[VOICES[i].k]||0;
+   if(c>0)t+=c*Math.log(Math.max(VOICES[i].p[s]/100,VEPS));}
+ return t;}
+
+const skw=(T,l,s)=>T[l][s][3]+T[l][s][4]+T[l][s][5];
+// SKW有無で条件付けた期待お風呂個数（1セットあたり）
+function bath(T,l,s,sp,on){const v=T[l][s],o=on?3:0;
+ const tot=v[o]+v[o+1]+v[o+2];if(tot<=0)return 0;let e=0;
+ for(let i=0;i<3;i++)e+=(v[o+i]/tot)*(WEAKN*WEAK[i]+sp*STRONG[i]+BAR[i]);return e}
+function lf(n){let r=0;for(let i=2;i<=n;i++)r+=Math.log(i);return r}
+function lbin(k,n,p){if(n<=0)return 0;p=Math.min(Math.max(p,1e-9),1-1e-9);
+ return lf(n)-lf(k)-lf(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p)}
+function poi(k,lam){if(lam<=0)return k>0?-700:0;return k*Math.log(lam)-lam-lf(k)}
+
+function logLik(iv,s){
+  const nA=iv.a1+iv.a0,nB=iv.b1+iv.b0,N=nA+nB;if(N<=0)return 0;
+  const nK=iv.a1+iv.b1,nN=iv.a0+iv.b0;
+  const spK=nK>0?iv.strongK/nK:0,spN=nN>0?iv.strongN/nN:0;
+  const w=LDIST[iv.role][s];let tot=0;
+  for(let l=0;l<4;l++){const pw=w[l]/100;if(pw<=0)continue;
+    const lamK=iv.a1*bath(A,l,s,spK,1)+iv.b1*bath(B,l,s,spK,1);
+    const lamN=iv.a0*bath(A,l,s,spN,0)+iv.b0*bath(B,l,s,spN,0);
+    const lg=lbin(iv.a1,nA,skw(A,l,s))+lbin(iv.b1,nB,skw(B,l,s))
+            +poi(iv.bathK,lamK)+poi(iv.bathN,lamN);
+    tot+=pw*Math.exp(lg);}
+  return tot>0?Math.log(tot):-700;
+}
+
+const BLANK=()=>({role:null,a1:0,a0:0,b1:0,b0:0,bathK:0,bathN:0,strongK:0,strongN:0,log:[]});
+const VBLANK=()=>({v0:0,v1:0,v2:0,v3:0,v4:0,v5:0,v6:0,v7:0,v8:0,log:[]});
+let ivs=[],cur=BLANK(),voice=VBLANK();
+const FIELDS=[{k:'bathK',n:'お風呂（SKWあり時）',s:'当該セットで獲得した個数'},
+              {k:'bathN',n:'お風呂（SKWなし時）',s:'非移行セットで獲得した個数'},
+              {k:'strongK',n:'強キャラ役（SKWあり時）',s:'当該セットでの実測回数'},
+              {k:'strongN',n:'強キャラ役（SKWなし時）',s:'非移行セットでの実測回数'}];
+
+function post(){const lg=[0,1,2,3,4,5].map(s=>ivs.reduce((a,iv)=>a+logLik(iv,s),0)+voiceLog(voice,s));
+ const m=Math.max(...lg),e=lg.map(x=>Math.exp(x-m)),t=e.reduce((a,b)=>a+b,0);return e.map(x=>x/t)}
+const voiceTot=()=>VOICES.reduce((a,v)=>a+(voice[v.k]||0),0);
+const setsOf=o=>o.a1+o.a0+o.b1+o.b0;
+
+function render(){
+  document.getElementById('roles').innerHTML=ROLES.map(r=>
+   `<button class="chip" data-r="${r.k}" aria-pressed="${cur.role===r.k}">${r.n}<small>${r.s}</small></button>`).join('');
+  ['a1','a0','b1','b0'].forEach(k=>document.getElementById('v-'+k).textContent=cur[k]);
+  document.getElementById('counters').innerHTML=FIELDS.map(f=>
+   `<div class="row"><button class="btn m" data-f="${f.k}" data-d="-1">−</button>
+    <div class="rn"><b>${f.n}</b><i>${f.s}</i></div><div class="val seg">${cur[f.k]}</div>
+    <button class="btn" data-f="${f.k}" data-d="1">＋</button></div>`).join('');
+  document.getElementById('commit').disabled=!(cur.role&&setsOf(cur)>0);
+  document.getElementById('undo').disabled=cur.log.length===0;
+
+  document.getElementById('voices').innerHTML=VOICES.map(v=>
+   `<div class="row"><button class="btn m" data-v="${v.k}" data-vd="-1">−</button>
+    <div class="rn"><b>${v.n}</b><i>${v.s}</i></div><div class="val seg">${voice[v.k]||0}</div>
+    <button class="btn" data-v="${v.k}" data-vd="1">＋</button></div>`).join('');
+  document.getElementById('vundo').disabled=voice.log.length===0;
+
+  const p=post(),ts=ivs.reduce((a,i)=>a+setsOf(i),0);
+  const vt=voiceTot();
+  document.getElementById('tot').textContent=(ivs.length||vt)
+   ?`${ivs.length}区間 / ${ts}set / ${ts*20}G`+(vt?` / 声${vt}`:''):'';
+  document.getElementById('post').innerHTML=p.map((v,i)=>
+   `<div class="bar"><div class="bk seg">${i+1}</div><div class="bt"><div class="bf" style="width:${(v*100).toFixed(1)}%"></div></div>
+    <div class="bv seg">${(v*100).toFixed(1)}%</div></div>`).join('');
+  document.getElementById('bands').innerHTML=[['低 1・2',p[0]+p[1]],['中 3・4',p[2]+p[3]],['高 5・6',p[4]+p[5]]]
+   .map(([n,v])=>`<div class="bc"><b class="seg">${(v*100).toFixed(0)}%</b><span>${n}</span></div>`).join('');
+  document.getElementById('sum').textContent= (ivs.length===0&&vt===0)
+   ? '有利区間を確定するか、ボイスを記録すると推測が出ます。事前分布は設定1〜6の均等。'
+   : '低群と高群の判別は4000Gで約63%、6000Gで約75%が目安。SKW系は高低群、ボイスは下限の切り上げ（格上ボイスで低設定を排除）に効きます。設定を1〜6で言い当てる精度はありません。';
+  document.getElementById('hist').innerHTML= ivs.length===0
+   ? '<div class="empty">まだ確定した有利区間はありません。</div>'
+   : ivs.map((iv,i)=>`<div class="h"><span class="seg">${String(i+1).padStart(2,'0')}</span>
+     <span>${ROLES.find(x=>x.k===iv.role).n} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}</span>
+     <button class="x" data-del="${i}" aria-label="削除">×</button></div>`).join('');
+}
+
+function mig(o){
+ const nK=(o.a1||0)+(o.b1||0),nN=(o.a0||0)+(o.b0||0),t=nK+nN;
+ if(o.bath!==undefined&&o.bathK===undefined){
+   o.bathK=t>0?Math.round((o.bath||0)*nK/t):0;
+   o.bathN=(o.bath||0)-o.bathK;delete o.bath;}
+ if(o.strong!==undefined&&o.strongK===undefined){
+   o.strongK=t>0?Math.round((o.strong||0)*nK/t):0;
+   o.strongN=(o.strong||0)-o.strongK;delete o.strong;}
+ if(o.bathK===undefined)o.bathK=0;
+ if(o.bathN===undefined)o.bathN=0;
+ if(o.strongK===undefined)o.strongK=0;
+ if(o.strongN===undefined)o.strongN=0;
+ return o;}
+function save(){try{localStorage.setItem('konosuba:v5',JSON.stringify({ivs,cur,voice}))}catch(e){}}
+let loaded=false;
+function load(){if(loaded)return;loaded=true;
+ try{let raw=localStorage.getItem('konosuba:v5')
+   ||localStorage.getItem('konosuba:v4')
+   ||localStorage.getItem('konosuba:v3')
+   ||localStorage.getItem('konosuba:v2');
+ if(raw){const d=JSON.parse(raw);ivs=(d.ivs||[]).map(mig);
+   cur=d.cur?mig(d.cur):cur;if(!cur.log)cur.log=[];
+   if(d.voice){voice={...VBLANK(),...d.voice};if(!voice.log)voice.log=[]}}}catch(e){}
+ render()}
+
+function handle(t){
+  if(t.dataset.r){cur.role=t.dataset.r}
+  else if(t.dataset.t){cur[t.dataset.t]++;cur.log.push(t.dataset.t)}
+  else if(t.dataset.f){const f=t.dataset.f,d=Number(t.dataset.d);
+    if(d>0){cur[f]++;cur.log.push(f)}
+    else if(cur[f]>0){cur[f]--;const i=cur.log.lastIndexOf(f);if(i>=0)cur.log.splice(i,1)}}
+  else if(t.dataset.v){const v=t.dataset.v,d=Number(t.dataset.vd);
+    if(d>0){voice[v]=(voice[v]||0)+1;voice.log.push(v)}
+    else if(voice[v]>0){voice[v]--;const i=voice.log.lastIndexOf(v);if(i>=0)voice.log.splice(i,1)}}
+  else if(t.id==='vundo'){const k=voice.log.pop();if(k&&voice[k]>0)voice[k]--}
+  else if(t.id==='undo'){const k=cur.log.pop();if(k&&cur[k]>0)cur[k]--}
+  else if(t.id==='commit'){const c={...cur};delete c.log;ivs.push(c);cur=BLANK()}
+  else if(t.dataset.del!==undefined){ivs.splice(Number(t.dataset.del),1)}
+  else if(t.id==='reset'){if(!confirm('全データを消去します。よろしいですか？'))return;ivs=[];cur=BLANK();voice=VBLANK()}
+  else return;
+  render();save();
+}
+// スワイプ誤爆対策：指を置いた位置から一定以上動いたらタップとみなさない
+let px=0,py=0,ptgt=null;const MOVE=10;
+document.addEventListener('pointerdown',e=>{
+  const t=e.target.closest('button');
+  if(!t){ptgt=null;return;}
+  px=e.clientX;py=e.clientY;ptgt=t;
+});
+document.addEventListener('pointerup',e=>{
+  if(!ptgt)return;
+  const t=e.target.closest('button');
+  // 押し始めと同じボタンの上で離した時だけ、かつ移動が小さい時だけ発火
+  if(t===ptgt&&Math.abs(e.clientX-px)<MOVE&&Math.abs(e.clientY-py)<MOVE){handle(t);}
+  ptgt=null;
+});
+load();
+</script>

@@ -13,7 +13,9 @@ header{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items
 h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.03em;flex:1}
 .tot{font-size:12px;color:var(--ink3)}
 section{padding:16px;border-bottom:1px solid var(--line)}
-.lbl{font-size:11px;letter-spacing:.11em;color:var(--ink3);text-transform:uppercase;margin:0 0 9px}
+.lbl{font-size:11px;letter-spacing:.11em;color:var(--ink3);text-transform:uppercase;margin:0 0 9px;
+ display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:28px}
+.lbl .warn{color:var(--amber);letter-spacing:.03em}
 .chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .chip{padding:11px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink2);
  border-radius:9px;font-size:13px;text-align:center;font-family:inherit;cursor:pointer}
@@ -26,7 +28,6 @@ section{padding:16px;border-bottom:1px solid var(--line)}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .tap{padding:14px 8px;border:1px solid var(--line);background:var(--panel);border-radius:11px;
  color:var(--ink);font-family:inherit;cursor:pointer;text-align:center}
-.tap:active{background:var(--panel2)}
 .tap b{display:block;font-size:26px;font-weight:500;line-height:1.15}
 .tap span{font-size:11.5px;color:var(--ink3)}
 .tap.on b{color:var(--teal)}
@@ -39,9 +40,21 @@ section{padding:16px;border-bottom:1px solid var(--line)}
  border-radius:11px;font-size:20px;font-family:inherit;cursor:pointer;line-height:1}
 .btn.m{width:38px;height:38px;color:var(--ink3);font-size:21px}
 .wide{width:100%;padding:14px;border-radius:11px;border:1px solid var(--amber);background:var(--panel2);
- color:var(--amber);font-size:15px;font-family:inherit;cursor:pointer;margin-top:12px}
+ color:var(--amber);font-size:15px;font-family:inherit;cursor:pointer}
 .wide:disabled{border-color:var(--line);color:var(--ink3);background:var(--panel)}
 .ghost{border-color:var(--line);color:var(--ink3);background:transparent;margin-top:8px}
+#commit{margin-top:22px}
+.mini{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:7px;
+ font-size:11px;letter-spacing:0;padding:6px 11px;font-family:inherit;cursor:pointer;flex:none;
+ max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mini[hidden]{display:none}
+/* 押下フィードバック */
+.btn,.tap,.chip,.mini,.wide{transition:transform .06s,background .06s,border-color .06s}
+.btn.pressed,.mini.pressed{background:var(--panel2);border-color:var(--amber2);transform:scale(.93)}
+.tap.pressed,.chip.pressed{background:var(--panel2);border-color:var(--amber2);transform:scale(.97)}
+.wide.pressed{transform:scale(.985);background:var(--panel)}
+@keyframes fl{from{color:var(--teal);transform:scale(1.14)}to{}}
+.flash{animation:fl .34s ease-out}
 .bar{display:flex;align-items:center;gap:9px;margin:5px 0}
 .bk{width:22px;font-size:13px;color:var(--ink2)}
 .bt{flex:1;height:14px;background:var(--panel);border-radius:4px;overflow:hidden}
@@ -51,9 +64,12 @@ section{padding:16px;border-bottom:1px solid var(--line)}
 .bc{background:var(--panel);border-radius:9px;padding:10px 4px;text-align:center}
 .bc b{display:block;font-size:21px;font-weight:500;color:var(--amber)}
 .bc span{font-size:10px;color:var(--ink3);letter-spacing:.05em}
-.h{font-size:12.5px;color:var(--ink2);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:8px}
+.h{font-size:12.5px;color:var(--ink2);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
 .h span{flex:1}
-.x{border:0;background:none;color:var(--ink3);font-size:17px;cursor:pointer;font-family:inherit}
+.h.bad{color:var(--amber)}
+.x{border:0;background:none;color:var(--ink3);font-size:17px;cursor:pointer;font-family:inherit;
+ width:34px;height:34px;flex:none}
+.x.pressed{color:var(--amber);transform:scale(.88)}
 .note{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:11px}
 .empty{color:var(--ink3);font-size:13px;padding:12px 0}
 </style>
@@ -61,46 +77,44 @@ section{padding:16px;border-bottom:1px solid var(--line)}
 <header><h1>このすば 設定推測</h1><div class="tot seg" id="tot"></div></header>
 
 <section>
-  <p class="lbl">有利区間 1G目の成立役</p>
+  <p class="lbl"><span>有利区間 1G目の成立役</span><span class="warn" id="rolewarn"></span></p>
   <div class="chips" id="roles"></div>
 </section>
 
 <section>
-  <p class="lbl">セット記録（1タップ＝1セット）</p>
+  <p class="lbl"><span>セット記録（1タップ＝1セット）</span><button class="mini" id="undo" hidden></button></p>
   <div class="grp">
     <p class="gh"><span>1巡目の2〜6セット目</span><em>アクア以外</em></p>
     <div class="pair">
-      <button class="tap on" data-t="b1"><b id="v-b1">0</b><span>SKW移行</span></button>
-      <button class="tap off" data-t="b0"><b id="v-b0">0</b><span>非移行</span></button>
+      <button class="tap on" data-t="b1"><b id="v-b1" data-key="b1">0</b><span>SKW移行</span></button>
+      <button class="tap off" data-t="b0"><b id="v-b0" data-key="b0">0</b><span>非移行</span></button>
     </div>
   </div>
   <div class="grp">
     <p class="gh"><span>それ以外のセット</span><em>1巡目アクア・2巡目以降</em></p>
     <div class="pair">
-      <button class="tap on" data-t="a1"><b id="v-a1">0</b><span>SKW移行</span></button>
-      <button class="tap off" data-t="a0"><b id="v-a0">0</b><span>非移行</span></button>
+      <button class="tap on" data-t="a1"><b id="v-a1" data-key="a1">0</b><span>SKW移行</span></button>
+      <button class="tap off" data-t="a0"><b id="v-a0" data-key="a0">0</b><span>非移行</span></button>
     </div>
   </div>
   <div id="counters"></div>
-  <button class="wide ghost" id="undo">直前の1タップを取り消す</button>
   <button class="wide" id="commit">この有利区間を確定して次へ</button>
 </section>
 
 <section>
-  <p class="lbl">AT終了時ボイス（全区間通しで計上）</p>
+  <p class="lbl"><span>AT終了時ボイス（全区間通しで計上）</span><button class="mini" id="vundo" hidden></button></p>
   <div id="voices"></div>
-  <button class="wide ghost" id="vundo">直前のボイス1タップを取り消す</button>
 </section>
 
 <section>
-  <p class="lbl">設定推測（事後確率）</p>
+  <p class="lbl"><span>設定推測（事後確率）</span></p>
   <div id="post"></div>
   <div class="bands" id="bands"></div>
   <div class="note" id="sum"></div>
 </section>
 
 <section>
-  <p class="lbl">確定済みの有利区間</p>
+  <p class="lbl"><span>確定済みの有利区間</span></p>
   <div id="hist"></div>
   <button class="wide ghost" id="reset">全データを消去</button>
 </section>
@@ -153,14 +167,12 @@ const VOICES=[
  {k:'v7',n:'でーがらーし〜',s:'設定5以上', p:[0,0,0,0,0.53,0.61]},
  {k:'v8',n:'この邂逅は〜',s:'設定6のみ',  p:[0,0,0,0,0,0.38]}];
 const VEPS=1e-4; // 0%ボイスの床（誤タップ・丸め対策で完全排除は避ける）
-// ボイス観測の設定別対数尤度（多項の定数項は設定間共通なので省略）
 function voiceLog(vc,s){let t=0;
  for(let i=0;i<VOICES.length;i++){const c=vc[VOICES[i].k]||0;
    if(c>0)t+=c*Math.log(Math.max(VOICES[i].p[s]/100,VEPS));}
  return t;}
 
 const skw=(T,l,s)=>T[l][s][3]+T[l][s][4]+T[l][s][5];
-// SKW有無で条件付けた期待お風呂個数（1セットあたり）
 function bath(T,l,s,sp,on){const v=T[l][s],o=on?3:0;
  const tot=v[o]+v[o+1]+v[o+2];if(tot<=0)return 0;let e=0;
  for(let i=0;i<3;i++)e+=(v[o+i]/tot)*(WEAKN*WEAK[i]+sp*STRONG[i]+BAR[i]);return e}
@@ -170,11 +182,12 @@ function lbin(k,n,p){if(n<=0)return 0;p=Math.min(Math.max(p,1e-9),1-1e-9);
 function poi(k,lam){if(lam<=0)return k>0?-700:0;return k*Math.log(lam)-lam-lf(k)}
 
 function logLik(iv,s){
+  const w=LDIST[iv.role];if(!w)return 0;          // 役不明の区間は尤度に寄与させない
   const nA=iv.a1+iv.a0,nB=iv.b1+iv.b0,N=nA+nB;if(N<=0)return 0;
   const nK=iv.a1+iv.b1,nN=iv.a0+iv.b0;
   const spK=nK>0?iv.strongK/nK:0,spN=nN>0?iv.strongN/nN:0;
-  const w=LDIST[iv.role][s];let tot=0;
-  for(let l=0;l<4;l++){const pw=w[l]/100;if(pw<=0)continue;
+  const wl=w[s];let tot=0;
+  for(let l=0;l<4;l++){const pw=wl[l]/100;if(pw<=0)continue;
     const lamK=iv.a1*bath(A,l,s,spK,1)+iv.b1*bath(B,l,s,spK,1);
     const lamN=iv.a0*bath(A,l,s,spN,0)+iv.b0*bath(B,l,s,spN,0);
     const lg=lbin(iv.a1,nA,skw(A,l,s))+lbin(iv.b1,nB,skw(B,l,s))
@@ -185,36 +198,49 @@ function logLik(iv,s){
 
 const BLANK=()=>({role:null,a1:0,a0:0,b1:0,b0:0,bathK:0,bathN:0,strongK:0,strongN:0,log:[]});
 const VBLANK=()=>({v0:0,v1:0,v2:0,v3:0,v4:0,v5:0,v6:0,v7:0,v8:0,log:[]});
-let ivs=[],cur=BLANK(),voice=VBLANK();
+let ivs=[],cur=BLANK(),voice=VBLANK(),flashKey=null;
 const FIELDS=[{k:'bathK',n:'お風呂（SKWあり時）',s:'当該セットで獲得した個数'},
               {k:'bathN',n:'お風呂（SKWなし時）',s:'非移行セットで獲得した個数'},
               {k:'strongK',n:'強キャラ役（SKWあり時）',s:'当該セットでの実測回数'},
               {k:'strongN',n:'強キャラ役（SKWなし時）',s:'非移行セットでの実測回数'}];
+// 取り消しボタンに「何を戻すか」を出すための表示名
+const LABEL={a1:'SKW移行',a0:'非移行',b1:'SKW移行(1巡目)',b0:'非移行(1巡目)',
+ bathK:'風呂(有)',bathN:'風呂(無)',strongK:'強(有)',strongN:'強(無)'};
+VOICES.forEach(v=>LABEL[v.k]=v.n);
 
 function post(){const lg=[0,1,2,3,4,5].map(s=>ivs.reduce((a,iv)=>a+logLik(iv,s),0)+voiceLog(voice,s));
  const m=Math.max(...lg),e=lg.map(x=>Math.exp(x-m)),t=e.reduce((a,b)=>a+b,0);return e.map(x=>x/t)}
 const voiceTot=()=>VOICES.reduce((a,v)=>a+(voice[v.k]||0),0);
 const setsOf=o=>o.a1+o.a0+o.b1+o.b0;
+const roleName=k=>{const r=ROLES.find(x=>x.k===k);return r?r.n:'役未選択'};
+
+function miniUndo(el,log){
+ const last=log[log.length-1];
+ if(!last){el.hidden=true;return}
+ el.hidden=false;el.textContent='↩ '+(LABEL[last]||last)+' を取消';
+}
 
 function render(){
   document.getElementById('roles').innerHTML=ROLES.map(r=>
    `<button class="chip" data-r="${r.k}" aria-pressed="${cur.role===r.k}">${r.n}<small>${r.s}</small></button>`).join('');
+  document.getElementById('rolewarn').textContent=cur.role?'':'※未選択';
   ['a1','a0','b1','b0'].forEach(k=>document.getElementById('v-'+k).textContent=cur[k]);
   document.getElementById('counters').innerHTML=FIELDS.map(f=>
    `<div class="row"><button class="btn m" data-f="${f.k}" data-d="-1">−</button>
-    <div class="rn"><b>${f.n}</b><i>${f.s}</i></div><div class="val seg">${cur[f.k]}</div>
+    <div class="rn"><b>${f.n}</b><i>${f.s}</i></div>
+    <div class="val seg" data-key="${f.k}">${cur[f.k]}</div>
     <button class="btn" data-f="${f.k}" data-d="1">＋</button></div>`).join('');
-  document.getElementById('commit').disabled=!(cur.role&&setsOf(cur)>0);
-  document.getElementById('undo').disabled=cur.log.length===0;
+  document.getElementById('commit').disabled=setsOf(cur)===0;
+  miniUndo(document.getElementById('undo'),cur.log);
 
   document.getElementById('voices').innerHTML=VOICES.map(v=>
    `<div class="row"><button class="btn m" data-v="${v.k}" data-vd="-1">−</button>
-    <div class="rn"><b>${v.n}</b><i>${v.s}</i></div><div class="val seg">${voice[v.k]||0}</div>
+    <div class="rn"><b>${v.n}</b><i>${v.s}</i></div>
+    <div class="val seg" data-key="${v.k}">${voice[v.k]||0}</div>
     <button class="btn" data-v="${v.k}" data-vd="1">＋</button></div>`).join('');
-  document.getElementById('vundo').disabled=voice.log.length===0;
+  miniUndo(document.getElementById('vundo'),voice.log);
 
-  const p=post(),ts=ivs.reduce((a,i)=>a+setsOf(i),0);
-  const vt=voiceTot();
+  const p=post(),ts=ivs.reduce((a,i)=>a+setsOf(i),0),vt=voiceTot();
   document.getElementById('tot').textContent=(ivs.length||vt)
    ?`${ivs.length}区間 / ${ts}set / ${ts*20}G`+(vt?` / 声${vt}`:''):'';
   document.getElementById('post').innerHTML=p.map((v,i)=>
@@ -227,9 +253,13 @@ function render(){
    : '低群と高群の判別は4000Gで約63%、6000Gで約75%が目安。SKW系は高低群、ボイスは下限の切り上げ（格上ボイスで低設定を排除）に効きます。設定を1〜6で言い当てる精度はありません。';
   document.getElementById('hist').innerHTML= ivs.length===0
    ? '<div class="empty">まだ確定した有利区間はありません。</div>'
-   : ivs.map((iv,i)=>`<div class="h"><span class="seg">${String(i+1).padStart(2,'0')}</span>
-     <span>${ROLES.find(x=>x.k===iv.role).n} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}</span>
+   : ivs.map((iv,i)=>`<div class="h${iv.role?'':' bad'}"><span class="seg">${String(i+1).padStart(2,'0')}</span>
+     <span>${roleName(iv.role)} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}</span>
      <button class="x" data-del="${i}" aria-label="削除">×</button></div>`).join('');
+
+  if(flashKey){const el=document.querySelector(`[data-key="${flashKey}"]`);
+   if(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
+   flashKey=null;}
 }
 
 function mig(o){
@@ -244,6 +274,7 @@ function mig(o){
  if(o.bathN===undefined)o.bathN=0;
  if(o.strongK===undefined)o.strongK=0;
  if(o.strongN===undefined)o.strongN=0;
+ if(o.role===undefined)o.role=null;
  return o;}
 function save(){try{localStorage.setItem('konosuba:v5',JSON.stringify({ivs,cur,voice}))}catch(e){}}
 let loaded=false;
@@ -255,38 +286,63 @@ function load(){if(loaded)return;loaded=true;
  if(raw){const d=JSON.parse(raw);ivs=(d.ivs||[]).map(mig);
    cur=d.cur?mig(d.cur):cur;if(!cur.log)cur.log=[];
    if(d.voice){voice={...VBLANK(),...d.voice};if(!voice.log)voice.log=[]}}}catch(e){}
- render()}
+ draw()}
+
+// 保存を先に、描画は失敗しても状態を巻き添えにしない
+function draw(){try{render()}catch(e){console.error('render失敗',e)}}
+const buzz=n=>{try{if(navigator.vibrate)navigator.vibrate(n)}catch(e){}};
 
 function handle(t){
-  if(t.dataset.r){cur.role=t.dataset.r}
-  else if(t.dataset.t){cur[t.dataset.t]++;cur.log.push(t.dataset.t)}
-  else if(t.dataset.f){const f=t.dataset.f,d=Number(t.dataset.d);
-    if(d>0){cur[f]++;cur.log.push(f)}
-    else if(cur[f]>0){cur[f]--;const i=cur.log.lastIndexOf(f);if(i>=0)cur.log.splice(i,1)}}
-  else if(t.dataset.v){const v=t.dataset.v,d=Number(t.dataset.vd);
-    if(d>0){voice[v]=(voice[v]||0)+1;voice.log.push(v)}
-    else if(voice[v]>0){voice[v]--;const i=voice.log.lastIndexOf(v);if(i>=0)voice.log.splice(i,1)}}
-  else if(t.id==='vundo'){const k=voice.log.pop();if(k&&voice[k]>0)voice[k]--}
-  else if(t.id==='undo'){const k=cur.log.pop();if(k&&cur[k]>0)cur[k]--}
-  else if(t.id==='commit'){const c={...cur};delete c.log;ivs.push(c);cur=BLANK()}
-  else if(t.dataset.del!==undefined){ivs.splice(Number(t.dataset.del),1)}
-  else if(t.id==='reset'){if(!confirm('全データを消去します。よろしいですか？'))return;ivs=[];cur=BLANK();voice=VBLANK()}
+  const ds=t.dataset||{};
+  if(ds.r){cur.role=ds.r;buzz(12)}
+  else if(ds.t){const k=ds.t;cur[k]++;cur.log.push(k);flashKey=k;buzz(12)}
+  else if(ds.f){const f=ds.f,d=Number(ds.d);
+    if(d>0){cur[f]++;cur.log.push(f);flashKey=f;buzz(12)}
+    else if(cur[f]>0){cur[f]--;const i=cur.log.lastIndexOf(f);if(i>=0)cur.log.splice(i,1);flashKey=f;buzz(28)}
+    else{buzz(28);return}}
+  else if(ds.v){const v=ds.v,d=Number(ds.vd);
+    if(d>0){voice[v]=(voice[v]||0)+1;voice.log.push(v);flashKey=v;buzz(12)}
+    else if(voice[v]>0){voice[v]--;const i=voice.log.lastIndexOf(v);if(i>=0)voice.log.splice(i,1);flashKey=v;buzz(28)}
+    else{buzz(28);return}}
+  else if(t.id==='vundo'){const k=voice.log.pop();if(k&&voice[k]>0){voice[k]--;flashKey=k}buzz(28)}
+  else if(t.id==='undo'){const k=cur.log.pop();if(k&&cur[k]>0){cur[k]--;flashKey=k}buzz(28)}
+  else if(t.id==='commit'){
+    if(setsOf(cur)===0)return;
+    if(!cur.role){buzz(28);
+      alert('有利区間 1G目の成立役が未選択です。\n画面上部の4つから1つ選んでから確定してください。');return}
+    const c={...cur};delete c.log;ivs.push(c);cur=BLANK();buzz(12)}
+  else if(ds.del!==undefined){
+    const i=Number(ds.del),iv=ivs[i];if(!iv)return;
+    if(!confirm(`${String(i+1).padStart(2,'0')}番の区間を削除します。\n`
+      +`${roleName(iv.role)} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}\n`
+      +`よろしいですか？`))return;
+    ivs.splice(i,1)}
+  else if(t.id==='reset'){
+    const ts=ivs.reduce((a,i)=>a+setsOf(i),0);
+    if(!confirm(`${ivs.length}区間（${ts}set）とボイス${voiceTot()}件を全て消去します。\n元に戻せません。`))return;
+    ivs=[];cur=BLANK();voice=VBLANK()}
   else return;
-  render();save();
+  save();draw();
 }
+
 // スワイプ誤爆対策：指を置いた位置から一定以上動いたらタップとみなさない
 let px=0,py=0,ptgt=null;const MOVE=10;
+const unpress=()=>{if(ptgt){ptgt.classList.remove('pressed');ptgt=null}};
 document.addEventListener('pointerdown',e=>{
   const t=e.target.closest('button');
-  if(!t){ptgt=null;return;}
-  px=e.clientX;py=e.clientY;ptgt=t;
+  if(!t||t.disabled){unpress();return}
+  px=e.clientX;py=e.clientY;ptgt=t;t.classList.add('pressed');
 });
+document.addEventListener('pointermove',e=>{
+  if(ptgt&&(Math.abs(e.clientX-px)>=MOVE||Math.abs(e.clientY-py)>=MOVE))unpress();
+});
+document.addEventListener('pointercancel',unpress);
 document.addEventListener('pointerup',e=>{
   if(!ptgt)return;
-  const t=e.target.closest('button');
-  // 押し始めと同じボタンの上で離した時だけ、かつ移動が小さい時だけ発火
-  if(t===ptgt&&Math.abs(e.clientX-px)<MOVE&&Math.abs(e.clientY-py)<MOVE){handle(t);}
-  ptgt=null;
+  const t=e.target.closest('button'),ok=t===ptgt
+    &&Math.abs(e.clientX-px)<MOVE&&Math.abs(e.clientY-py)<MOVE;
+  ptgt.classList.remove('pressed');ptgt=null;
+  if(ok)handle(t);
 });
 load();
 </script>

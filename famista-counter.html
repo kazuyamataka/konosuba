@@ -1,0 +1,446 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ファミスタ回胴版!! 設定カウンタ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --turf:#0c1d15; --panel:#0a1510; --board:#050806;
+  --led:#f2b21c; --hit:#4ea86a; --miss:#43594e; --clay:#c06a3e;
+  --chalk:#eef0e8; --mute:#7e948a; --line:#223d30;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0;background:var(--turf);color:var(--chalk);
+  font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+  display:flex;flex-direction:column;overflow:hidden;user-select:none;
+}
+
+/* ===== 上端固定 ===== */
+header{flex:0 0 auto;background:var(--board);border-bottom:2px solid var(--line);
+  padding:calc(env(safe-area-inset-top) + 8px) 12px 8px}
+.bar{display:flex;align-items:center;gap:8px}
+.tabs{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+.tabs button{padding:8px 14px;min-height:38px;background:transparent;color:var(--mute);
+  border:0;font-family:"DotGothic16",monospace;font-size:13px;letter-spacing:.06em}
+.tabs button[aria-selected=true]{background:var(--led);color:#000}
+.hand{margin-left:auto;min-width:64px;min-height:38px;padding:0 12px;background:transparent;
+  border:1px solid var(--line);border-radius:3px;color:var(--chalk);
+  font-family:"DotGothic16",monospace;font-size:15px}
+.hand:active{background:var(--line)}
+.readout{display:flex;align-items:baseline;gap:10px;margin-top:10px}
+.readout .lbl{font-size:11px;color:var(--mute);letter-spacing:.14em}
+.readout .big{font-family:"DotGothic16",monospace;font-size:38px;line-height:1;color:var(--led);
+  text-shadow:0 0 14px rgba(242,178,28,.3)}
+.readout .sub{font-size:11.5px;color:var(--mute);margin-left:auto;text-align:right;line-height:1.5}
+.detail{display:none;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);
+  grid-template-columns:repeat(4,1fr);gap:6px}
+.detail.open{display:grid}
+.detail div{text-align:center;font-size:11px;color:var(--mute)}
+.detail b{display:block;font-family:"DotGothic16",monospace;font-size:17px;color:var(--chalk)}
+.expand{width:100%;margin-top:6px;min-height:30px;background:transparent;border:0;
+  color:var(--mute);font-size:11px;letter-spacing:.1em}
+
+/* ===== 中央スクロール ===== */
+main{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px 20px}
+.card{background:var(--panel);border:1px solid var(--line);padding:14px;margin-bottom:12px}
+h2{font-family:"DotGothic16",monospace;font-weight:400;font-size:13px;color:var(--led);
+  margin:0 0 4px;letter-spacing:.1em}
+.hint{font-size:11.5px;color:var(--mute);margin:0 0 12px;line-height:1.6}
+.gline{display:flex;align-items:center;gap:10px}
+.gline label{font-size:12px;color:var(--mute)}
+input[type=number]{flex:1;min-height:46px;padding:6px 10px;background:#040a07;
+  border:1px solid var(--line);color:var(--led);
+  font-family:"DotGothic16",monospace;font-size:20px;text-align:right}
+input[type=number]:focus{outline:2px solid var(--led);outline-offset:1px}
+.gadd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.gadd button{min-height:48px;border:1px solid var(--line);border-radius:4px;
+  background:#0f2018;color:var(--chalk);font-family:"DotGothic16",monospace;font-size:15px}
+.gadd button:active{background:#16301f;transform:scale(.96)}
+.warn{margin-top:8px;font-size:11.5px;color:var(--clay);display:none;line-height:1.6}
+.warn.show{display:block}
+.check{display:flex;align-items:center;gap:9px;font-size:12px;color:#c2d2c8;min-height:44px}
+.check input{width:20px;height:20px;accent-color:var(--led);flex:0 0 auto}
+
+/* 低頻度カウンタ（スクロール域） */
+.stepper{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(34,61,48,.6)}
+.stepper:last-of-type{border-bottom:0}
+.stepper .nm{flex:1;font-size:13px}
+.stepper .nm small{display:block;font-size:10.5px;color:var(--mute)}
+.stepper .num{min-width:38px;text-align:center;font-family:"DotGothic16",monospace;
+  font-size:18px;color:var(--led)}
+.stepper button{width:46px;height:46px;flex:0 0 auto;border:1px solid var(--line);
+  border-radius:4px;background:#0f2018;color:var(--chalk);font-size:20px;line-height:1}
+.stepper button:active{background:#16301f;transform:scale(.94)}
+.stepper button.minus{color:var(--mute);font-size:18px}
+.tally{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12.5px}
+.tally span:nth-child(even){font-family:"DotGothic16",monospace;color:var(--led)}
+table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+th,td{border:1px solid var(--line);padding:5px 6px;text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:400;font-size:10.5px}
+td.obs{color:var(--led);font-family:"DotGothic16",monospace}
+.near{background:rgba(242,178,28,.13)}
+.reset{width:100%;min-height:48px;margin-top:10px;background:transparent;
+  border:1px solid var(--clay);color:var(--clay);font-size:13px}
+.reset:active{background:rgba(192,106,62,.18)}
+
+/* ===== 下端固定パッド：2/3幅・持ち手寄せ ===== */
+footer{flex:0 0 auto;background:var(--board);border-top:2px solid var(--line);
+  padding:10px 10px calc(env(safe-area-inset-bottom) + 10px)}
+.zone{display:flex;align-items:flex-end;gap:8px}
+body[data-hand=R] .zone{flex-direction:row}          /* 右手：パッドを右へ */
+body[data-hand=L] .zone{flex-direction:row-reverse}  /* 左手：パッドを左へ */
+.side{flex:1 1 0;display:flex;justify-content:center}
+.pad{flex:0 0 66%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{min-height:64px;border:1px solid var(--line);border-radius:5px;background:#0f2018;
+  color:var(--chalk);font-size:13px;font-weight:700;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  line-height:1.25;padding:4px}
+.btn small{font-size:10.5px;font-weight:400;color:var(--mute)}
+.btn .cnt{font-family:"DotGothic16",monospace;font-size:15px;color:var(--led)}
+.btn:active{transform:scale(.96);background:#16301f}
+.btn.hit{border-color:var(--hit);background:rgba(78,168,106,.16)}
+.btn.hit .cnt{color:var(--hit)}
+.btn.miss{border-color:var(--miss)}
+.undo{width:100%;max-width:96px;min-height:64px;border:1px solid var(--clay);border-radius:5px;
+  background:transparent;color:var(--clay);font-size:12px}
+.undo:disabled{opacity:.28}
+.undo:active:not(:disabled){background:rgba(192,106,62,.2)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:190px;
+  background:#000;border:1px solid var(--led);color:var(--led);padding:7px 16px;
+  font-size:12.5px;opacity:0;pointer-events:none;transition:opacity .2s;
+  font-family:"DotGothic16",monospace}
+.toast.show{opacity:1}
+[hidden]{display:none !important}
+@media (prefers-reduced-motion:reduce){.btn:active,.stepper button:active{transform:none}}
+</style>
+
+<header>
+  <div class="bar">
+    <div class="tabs" role="tablist">
+      <button id="tLive" role="tab" aria-selected="true">実戦</button>
+      <button id="tLab"  role="tab" aria-selected="false">検証</button>
+    </div>
+    <button class="hand" id="hand" aria-label="持ち手を切り替え">右手</button>
+  </div>
+  <div class="readout">
+    <span class="lbl">高設定期待度</span>
+    <span class="big" id="hiPct">—</span>
+    <span class="sub" id="sub">未入力</span>
+  </div>
+  <div class="detail" id="detail"></div>
+  <button class="expand" id="expand">内訳を開く ▾</button>
+</header>
+
+<main>
+  <div id="live">
+    <div class="card">
+      <h2>総ゲーム数</h2>
+      <div class="gline">
+        <label for="g">G数</label>
+        <input type="number" id="g" inputmode="numeric" min="0" value="0">
+      </div>
+      <div class="gadd">
+        <button data-g="10">＋10</button>
+        <button data-g="100">＋100</button>
+        <button data-g="1000">＋1000</button>
+      </div>
+      <div class="warn" id="gwarn"></div>
+      <label class="check">
+        <input type="checkbox" id="autoDen">
+        非突入を押さない（分母を理論値から逆算・精度は落ちます）
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>ボーナス</h2>
+      <p class="hint">BBはほぼ設定差がありません。判別に効くのはRBです。</p>
+      <div id="stepBonus"></div>
+    </div>
+
+    <div class="card">
+      <h2>特定ボーナス</h2>
+      <p class="hint">設定1と6で約2倍差。入賞時にCHANCEボタンで成立時の出目を確認できます。</p>
+      <div id="stepSpecial"></div>
+    </div>
+
+    <div class="card">
+      <h2>示唆・確定要素</h2>
+      <p class="hint">出たときだけ押してください。分母はBB・RBの回数を使います。</p>
+      <div id="stepSign"></div>
+    </div>
+
+    <div class="card">
+      <h2>カウント内容</h2>
+      <div class="tally" id="tally"></div>
+      <button class="reset" id="reset">すべて消す</button>
+    </div>
+  </div>
+
+  <div id="lab" hidden>
+    <div class="card">
+      <h2>判別ロジック</h2>
+      <p class="hint">実戦画面の数値は、ここで選んだ方式で計算されます。</p>
+      <div class="tabs" style="width:100%">
+        <button id="mBayes" style="flex:1" aria-selected="true">ベイズ推定</button>
+        <button id="mSimple" style="flex:1" aria-selected="false">実測値くらべ</button>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="useBonus">
+        ボーナス確率も推定に含める（特定ボーナスと内数が重なります）
+      </label>
+    </div>
+    <div class="card"><h2>設定別の内訳</h2><div id="labOut"></div></div>
+    <div class="card">
+      <h2>実測値くらべ</h2>
+      <p class="hint">実測に最も近い設定の欄を光らせています。設定1と2はBB確率の差が0.5%未満で、ほぼ分離できません。</p>
+      <div id="labTable"></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="zone">
+    <div class="side"><button class="undo" id="undo" disabled>戻す</button></div>
+    <div class="pad" id="pad"></div>
+  </div>
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const SET=[1,2,5,6];
+const DEN={
+  bb:[303.4,302.0,300.6,299.3],
+  rb:[455.1,414.8,381.0,356.2],
+  cRB:[2184.5,1560.4,1260.3,1057.0],
+  bRB:[8192.0,6553.6,4681.1,4096.0],
+  sBB:[16384.0,13107.2,10922.7,9362.3]
+};
+const RATE={
+  ch:[0.027,0.035,0.043,0.051],
+  sw:[0.098,0.105,0.133,0.152],
+  chr:[0.000,0.031,0.031,0.063],
+  bgm:[0.000,0.000,0.040,0.040]
+};
+const CHERRY_DEN=30.3, MELON_DEN=61.0;
+
+const C={chK:0,chN:0,swK:0,swN:0,bb:0,rb:0,cRB:0,bRB:0,sBB:0,chr:0,bgm:0};
+const hist=[];
+const $=id=>document.getElementById(id);
+let mode="bayes", tab="live";
+
+/* ---- 下端：高頻度のみ ---- */
+const PAD=[
+  {k:"chK",t:"チェリー",s:"突入",c:"hit"},
+  {k:"chN",t:"チェリー",s:"非突入",c:"miss"},
+  {k:"swK",t:"スイカ",s:"突入",c:"hit"},
+  {k:"swN",t:"スイカ",s:"非突入",c:"miss"}
+];
+/* ---- スクロール域：低頻度 ---- */
+const STEP={
+  stepBonus:[{k:"bb",t:"BB",s:"1/303〜1/299"},{k:"rb",t:"RB",s:"1/455〜1/356"}],
+  stepSpecial:[
+    {k:"cRB",t:"チェリー＋RB",s:"1/2185〜1/1057"},
+    {k:"bRB",t:"共通ベル＋RB",s:"1/8192〜1/4096"},
+    {k:"sBB",t:"スイカB＋FBB",s:"1/16384〜1/9362"}],
+  stepSign:[
+    {k:"chr",t:"チアガール",s:"BB終了画面／設定1では出ません"},
+    {k:"bgm",t:"RB特殊BGM",s:"オーケストラ風／設定5以上"}]
+};
+const NAME={chK:"チェリー突入",chN:"チェリー非突入",swK:"スイカ突入",swN:"スイカ非突入",
+  bb:"BB",rb:"RB",cRB:"チェリー+RB",bRB:"共通ベル+RB",sBB:"スイカB+FBB",
+  chr:"チアガール",bgm:"RB特殊BGM"};
+
+function buildPad(){
+  $("pad").innerHTML=PAD.map(b=>
+    `<button class="btn ${b.c}" data-k="${b.k}"><span>${b.t}</span>
+      <small>${b.s}</small><span class="cnt" data-c="${b.k}">0</span></button>`).join("");
+  $("pad").querySelectorAll(".btn").forEach(b=>b.onclick=()=>tap(b.dataset.k));
+}
+function buildSteppers(){
+  Object.entries(STEP).forEach(([id,list])=>{
+    $(id).innerHTML=list.map(s=>
+      `<div class="stepper">
+        <span class="nm">${s.t}<small>${s.s}</small></span>
+        <button class="minus" data-m="${s.k}" aria-label="${s.t}を1減らす">−</button>
+        <span class="num" data-c="${s.k}">0</span>
+        <button data-p="${s.k}" aria-label="${s.t}を1増やす">＋</button>
+      </div>`).join("");
+  });
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>tap(b.dataset.p));
+  document.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>dec(b.dataset.m));
+}
+function tap(k){
+  C[k]++;hist.push(k);
+  if(navigator.vibrate)navigator.vibrate(12);
+  toast(NAME[k]+" +1");render();
+}
+function dec(k){
+  if(C[k]<=0)return;
+  C[k]--;const i=hist.lastIndexOf(k);if(i>=0)hist.splice(i,1);
+  if(navigator.vibrate)navigator.vibrate(8);
+  toast(NAME[k]+" −1");render();
+}
+function undo(){
+  const k=hist.pop();if(!k)return;
+  C[k]=Math.max(0,C[k]-1);
+  if(navigator.vibrate)navigator.vibrate([8,40,8]);
+  toast(NAME[k]+" を1件戻しました");render();
+}
+let tid;
+function toast(m){
+  const t=$("toast");t.textContent=m;t.classList.add("show");
+  clearTimeout(tid);tid=setTimeout(()=>t.classList.remove("show"),1100);
+}
+
+/* ---- 推定 ---- */
+function ll(k,n,p){
+  if(n<=0)return 0;
+  k=Math.min(k,n);
+  if(p<=0)return k>0?-Infinity:0;
+  if(p>=1)return (n-k)>0?-Infinity:0;
+  return k*Math.log(p)+(n-k)*Math.log(1-p);
+}
+function denoms(){
+  const g=Math.max(0,Number($("g").value)||0);
+  if($("autoDen").checked)
+    return {g,chN:Math.max(C.chK,Math.round(g/CHERRY_DEN)),swN:Math.max(C.swK,Math.round(g/MELON_DEN))};
+  return {g,chN:C.chK+C.chN,swN:C.swK+C.swN};
+}
+function posterior(){
+  const {g,chN,swN}=denoms(), useB=$("useBonus").checked;
+  const L=SET.map((_,i)=>{
+    let s=0;
+    if(useB)s+=ll(C.bb,g,1/DEN.bb[i])+ll(C.rb,g,1/DEN.rb[i]);
+    s+=ll(C.cRB,g,1/DEN.cRB[i])+ll(C.bRB,g,1/DEN.bRB[i])+ll(C.sBB,g,1/DEN.sBB[i]);
+    s+=ll(C.chK,chN,RATE.ch[i])+ll(C.swK,swN,RATE.sw[i]);
+    s+=ll(C.chr,C.bb,RATE.chr[i])+ll(C.bgm,C.rb,RATE.bgm[i]);
+    return s;
+  });
+  const mx=Math.max(...L.filter(isFinite));
+  if(!isFinite(mx))return [.25,.25,.25,.25];
+  const e=L.map(x=>isFinite(x)?Math.exp(x-mx):0), sum=e.reduce((a,b)=>a+b,0);
+  return sum>0?e.map(x=>x/sum):[.25,.25,.25,.25];
+}
+
+/* ---- 表示 ---- */
+function render(){
+  document.querySelectorAll("[data-c]").forEach(el=>el.textContent=C[el.dataset.c]);
+  $("undo").disabled=hist.length===0;
+
+  const {g,chN,swN}=denoms();
+  const touched=g>0||hist.length>0;
+  const p=posterior(), hi=(p[2]+p[3])*100;
+
+  if(mode==="bayes"){
+    $("hiPct").textContent=touched?hi.toFixed(1)+"%":"—";
+  }else{
+    const tot=C.bb+C.rb;
+    $("hiPct").textContent=(g>0&&tot>0)?"1/"+(g/tot).toFixed(0):"—";
+  }
+  $("sub").innerHTML=touched
+    ?`${g}G ／ BB${C.bb}・RB${C.rb}<br>${mode==="bayes"?"設定5・6の合計":"ボーナス合算（実測）"}`
+    :"未入力";
+  $("detail").innerHTML=SET.map((s,i)=>
+    `<div>設定${s}<b>${(p[i]*100).toFixed(1)}%</b></div>`).join("");
+
+  const w=$("gwarn"), exp=g/CHERRY_DEN, got=C.chK+C.chN;
+  if(!$("autoDen").checked&&g>=600&&got>0&&got<exp*0.7){
+    w.textContent=`チェリーの記録が${got}件。${g}Gなら理論上は約${Math.round(exp)}件です。非突入の押し忘れは高設定寄りの偏りになります。`;
+    w.classList.add("show");
+  }else if(C.chr>0&&C.bb===0){
+    w.textContent="チアガールが記録されていますが、BBが0回です。BBの回数も入れてください。";
+    w.classList.add("show");
+  }else w.classList.remove("show");
+
+  $("tally").innerHTML=[["総ゲーム数",g+"G"],["BB",C.bb],["RB",C.rb],
+    ["チェリー+RB",C.cRB],["共通ベル+RB",C.bRB],["スイカB+FBB",C.sBB],
+    ["CT チェリー",`${C.chK}/${chN}`],["CT スイカ",`${C.swK}/${swN}`],
+    ["チアガール",`${C.chr}/${C.bb}`],["RB特殊BGM",`${C.bgm}/${C.rb}`]]
+    .map(([a,b])=>`<span>${a}</span><span>${b}</span>`).join("");
+
+  if(tab==="lab")renderLab(p);
+}
+function renderLab(p){
+  let h="";
+  SET.forEach((s,i)=>{
+    h+=`<div style="display:grid;grid-template-columns:50px 1fr 58px;gap:8px;align-items:center;margin:8px 0">
+      <span style="font-family:'DotGothic16',monospace">設定${s}</span>
+      <span style="height:16px;background:#040a07;border:1px solid var(--line);display:block">
+        <span style="display:block;height:100%;width:${Math.max(p[i]*100,.5)}%;background:var(--led)"></span></span>
+      <span style="font-family:'DotGothic16',monospace;color:var(--led);text-align:right">${(p[i]*100).toFixed(1)}%</span>
+    </div>`;
+  });
+  const n=[],{g}=denoms();
+  if(C.chr>0)n.push("チアガール出現により設定1は否定されています。");
+  if(C.bgm>0)n.push("RB特殊BGMにより設定5以上が濃厚です。");
+  if(g>0&&g<3000)n.push("特定ボーナスは分母が重いため、3000G未満では結果が揺れます。");
+  if(n.length)h+=`<p class="hint" style="margin:10px 0 0">${n.join("<br>")}</p>`;
+  $("labOut").innerHTML=h;
+
+  const {chN,swN}=denoms();
+  const row=(nm,k,d,theo,fmt)=>{
+    if(d<=0)return `<tr><td>${nm}</td><td class="obs">—</td>${theo.map(t=>`<td>${fmt(t)}</td>`).join("")}</tr>`;
+    const obs=k/d;let b=0,bd=Infinity;
+    theo.forEach((t,i)=>{const x=Math.abs(obs-t);if(x<bd){bd=x;b=i;}});
+    return `<tr><td>${nm}</td><td class="obs">${fmt(obs)}</td>`+
+      theo.map((t,i)=>`<td class="${i===b?"near":""}">${fmt(t)}</td>`).join("")+`</tr>`;
+  };
+  const den=x=>x>0?"1/"+(1/x).toFixed(0):"—", pct=x=>(x*100).toFixed(1)+"%";
+  let r="";
+  r+=row("BB",C.bb,g,DEN.bb.map(d=>1/d),den);
+  r+=row("RB",C.rb,g,DEN.rb.map(d=>1/d),den);
+  r+=row("チェリー+RB",C.cRB,g,DEN.cRB.map(d=>1/d),den);
+  r+=row("共通ベル+RB",C.bRB,g,DEN.bRB.map(d=>1/d),den);
+  r+=row("スイカB+FBB",C.sBB,g,DEN.sBB.map(d=>1/d),den);
+  r+=row("CT(チェリー)",C.chK,chN,RATE.ch,pct);
+  r+=row("CT(スイカ)",C.swK,swN,RATE.sw,pct);
+  r+=row("チアガール",C.chr,C.bb,RATE.chr,pct);
+  r+=row("RB特殊BGM",C.bgm,C.rb,RATE.bgm,pct);
+  $("labTable").innerHTML=`<table><thead><tr><th>要素</th><th>実測</th>`+
+    SET.map(s=>`<th>設定${s}</th>`).join("")+`</tr></thead><tbody>${r}</tbody></table>`;
+}
+
+/* ---- 操作 ---- */
+document.body.dataset.hand="R";
+$("hand").onclick=()=>{
+  const L=document.body.dataset.hand==="L";
+  document.body.dataset.hand=L?"R":"L";
+  $("hand").textContent=L?"右手":"左手";
+  if(navigator.vibrate)navigator.vibrate(10);
+};
+$("expand").onclick=()=>{
+  const o=$("detail").classList.toggle("open");
+  $("expand").textContent=o?"内訳を閉じる ▴":"内訳を開く ▾";
+};
+function setTab(t){
+  tab=t;$("live").hidden=t!=="live";$("lab").hidden=t!=="lab";
+  $("tLive").ariaSelected=String(t==="live");$("tLab").ariaSelected=String(t==="lab");
+  render();
+}
+$("tLive").onclick=()=>setTab("live");
+$("tLab").onclick=()=>setTab("lab");
+function setMode(m){
+  mode=m;$("mBayes").ariaSelected=String(m==="bayes");
+  $("mSimple").ariaSelected=String(m==="simple");render();
+}
+$("mBayes").onclick=()=>setMode("bayes");
+$("mSimple").onclick=()=>setMode("simple");
+$("undo").onclick=undo;
+["g","autoDen","useBonus"].forEach(id=>$(id).addEventListener("input",render));
+document.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{
+  const n=Number(b.dataset.g);
+  $("g").value=Math.max(0,(Number($("g").value)||0)+n);
+  if(navigator.vibrate)navigator.vibrate(12);
+  toast(`G数 +${n}`);render();
+});
+$("reset").onclick=()=>{
+  Object.keys(C).forEach(k=>C[k]=0);hist.length=0;$("g").value=0;
+  toast("すべて消しました");render();
+};
+
+buildPad();buildSteppers();render();
+</script>

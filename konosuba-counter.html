@@ -56,6 +56,12 @@ section{padding:16px;border-bottom:1px solid var(--line)}
  font-size:11px;letter-spacing:0;padding:6px 11px;font-family:inherit;cursor:pointer;flex:none;
  max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none}
 .mini[hidden]{display:none}
+.gin{width:64px;height:44px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink2);
+ border-radius:11px;font-size:20px;text-align:center;font-family:inherit;padding:0 4px;-moz-appearance:textfield}
+.gin::-webkit-inner-spin-button,.gin::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.gin.short{border-color:var(--amber);color:var(--amber)}
+.gin:focus{outline:none;border-color:var(--teal)}
+.gu{font-size:13px;color:var(--ink3);margin-left:-4px}
 .qrow{display:grid;grid-template-columns:62px 1fr 1fr;gap:7px;align-items:center;margin:6px 0}
 .qn{font-size:13px;display:flex;align-items:center;gap:6px}
 .qn i{font-style:normal;font-size:10px;color:var(--ink3);display:block}
@@ -108,7 +114,11 @@ section{padding:16px;border-bottom:1px solid var(--line)}
   <div class="quad" id="strong"></div>
   <div class="tags" id="stronglist"></div>
   <div id="counters" style="margin-top:8px"></div>
-  <div class="chips" style="margin-top:8px"><button class="chip" id="part"></button></div>
+  <div class="row">
+    <div class="rn"><b>消化G数</b><i id="ghint">AT当選で途中終了した時だけ入力</i></div>
+    <input class="gin seg" id="gin" type="number" inputmode="numeric" min="1" max="20" step="1">
+    <span class="gu">G</span>
+  </div>
   <button class="wide teal" id="setcommit">このセットを確定</button>
 </section>
 
@@ -271,7 +281,7 @@ function setLog(st,T,l,s){const v=T[l][s],sk=SKWV[st.skw],terms=[];
   for(let z=0;z<3;z++){const p=v[on*3+z];if(p<=0)continue;
    let lg=Math.log(p);
    for(const k of st.strong)lg+=Math.log(Math.max(PCH[z][k],PFLOOR));
-   if(!st.part)lg+=poi(st.oth,LAM_OTH[z]);
+   const g=gOf(st);if(g!==null)lg+=poi(st.oth,LAM_OTH[z]*g/20);
    terms.push(lg)}}
  return lse(terms)}
 function logLik7(iv,s){
@@ -285,7 +295,9 @@ function logLik7(iv,s){
  return lse(terms)}
 const logLik=(iv,s)=>iv.t===7?logLik7(iv,s):logLikOld(iv,s);
 
-const SBLANK=()=>({skw:'',strong:[],oth:0,cyc:0,part:false});
+const SBLANK=()=>({skw:'',strong:[],oth:0,cyc:0,g:20});
+// 消化G数（1〜20）。旧v7の「途中終了」でG数不明のものは null＝その他お風呂を判定から除外
+const gOf=S=>S.g===undefined?(S.part?null:20):S.g;
 const BLANK=()=>({role:null,start:0,lv4:false,sets:[],set:SBLANK(),log:[]});
 const VBLANK=()=>({v0:0,v1:0,v2:0,v3:0,v4:0,v5:0,v6:0,v7:0,v8:0,log:[]});
 const QBLANK=()=>({q0s:0,q0f:0,q1s:0,q1f:0,q2s:0,q2f:0,log:[]});
@@ -293,7 +305,7 @@ let ivs=[],cur=BLANK(),voice=VBLANK(),quest=QBLANK(),flashKey=null;
 const FIELDS=[{k:'oth',n:'その他のお風呂',s:'弱キャラ役・BAR揃い経由の個数'},
               {k:'cyc',n:'周期開始時のお風呂',s:'記録のみ（判定には使わない）'}];
 const LABEL={skw:'SKW選択',st0:'強→0個',st1:'強→1個',st2:'強→2個',st3:'強→3個+',
- oth:'その他お風呂',cyc:'周期開始お風呂',part:'途中終了',commit:'セット確定'};
+ oth:'その他お風呂',cyc:'周期開始お風呂',g:'消化G数',commit:'セット確定'};
 VOICES.forEach(v=>LABEL[v.k]=v.n);
 QUEST.forEach(q=>{LABEL[q.k+'s']=q.n+'・成功';LABEL[q.k+'f']=q.n+'・失敗'});
 
@@ -305,11 +317,11 @@ const questTot=()=>QUEST.reduce((a,q)=>a+(quest[q.k+'s']||0)+(quest[q.k+'f']||0)
 const setsOfOld=o=>o.a1+o.a0+o.b1+o.b0;
 const setsOf=iv=>iv.t===7?iv.sets.length:setsOfOld(iv);
 const roleName=k=>{const r=ROLES.find(x=>x.k===k);return r?r.n:'役未選択'};
-const setEmpty=S=>!S.skw&&!S.strong.length&&!S.oth&&!S.cyc&&!S.part;
+const setEmpty=S=>!S.skw&&!S.strong.length&&!S.oth&&!S.cyc&&gOf(S)===20;
 const SKWN={on:'SKWあり',off:'SKWなし',unk:'SKW不明'};
 function setText(S){
  const st=S.strong.length?'強'+S.strong.map(k=>k===3?'3+':k).join('·'):'強なし';
- return `${SKWN[S.skw]||'SKW未選択'}・${st}・他${S.oth}`+(S.cyc?`・周${S.cyc}`:'')+(S.part?'・途中終了':'')}
+ return `${SKWN[S.skw]||'SKW未選択'}・${st}・他${S.oth}`+(S.cyc?`・周${S.cyc}`:'')+(gOf(S)===20?'':`・${gOf(S)===null?'途中終了':gOf(S)+'G'}`)}
 function ivText(iv){
  if(iv.t!==7)return `${setsOfOld(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}`;
  const nK=iv.sets.filter(s=>s.skw==='on').length,ns=iv.sets.reduce((a,s)=>a+s.strong.length,0),
@@ -346,9 +358,10 @@ function render(){
     <div class="rn"><b>${f.n}</b><i>${f.s}</i></div>
     <div class="val seg" data-key="${f.k}">${S[f.k]}</div>
     <button class="btn" data-f="${f.k}" data-d="1">＋</button></div>`).join('');
-  const pt=document.getElementById('part');
-  pt.setAttribute('aria-pressed',S.part);
-  pt.innerHTML=S.part?'途中終了（AT当選等）<small>その他お風呂は判定から除外</small>':'20G消化<small>AT当選等で途中終了したらタップ</small>';
+  const gi=document.getElementById('gin'),gv=gOf(S)??20;
+  if(document.activeElement!==gi)gi.value=gv;
+  gi.classList.toggle('short',gv<20);
+  document.getElementById('ghint').textContent=gv<20?'途中終了：その他お風呂は'+gv+'G分で計算':'AT当選で途中終了した時だけ入力';
   document.getElementById('setcommit').disabled=setEmpty(S);
   miniUndo(document.getElementById('undo'),(cur.log[cur.log.length-1]||{}).a);
 
@@ -432,7 +445,7 @@ function undoCur(){
  if(e.a==='skw')S.skw=e.prev;
  else if(e.a.startsWith('st'))S.strong.pop();
  else if(e.a==='oth'||e.a==='cyc'){if(S[e.a]>0)S[e.a]--}
- else if(e.a==='part')S.part=!S.part;
+ else if(e.a==='g'){S.g=e.prev;delete S.part}
  else if(e.a==='commit'){const last=cur.sets.pop();if(last)cur.set=last}
  flashKey=e.a.startsWith('st')?e.a:(e.a==='oth'||e.a==='cyc'?e.a:null);
 }
@@ -454,7 +467,6 @@ function handle(t){
       for(let i=cur.log.length-1;i>=0;i--){if(cur.log[i].a==='commit')break;if(cur.log[i].a===f){cur.log.splice(i,1);break}}
       flashKey=f;buzz(28)}
     else{buzz(28);return}}
-  else if(t.id==='part'){S.part=!S.part;cur.log.push({a:'part'});buzz(12)}
   else if(t.id==='undo'){undoCur();buzz(28)}
   else if(t.id==='setcommit'){if(!commitSet())return;buzz(12)}
   else if(ds.q){const k=ds.q;quest[k]++;quest.log.push(k);flashKey=k;buzz(12)}
@@ -484,6 +496,16 @@ function handle(t){
   save();draw();
 }
 
+// 消化G数：確定（change）時に1〜20へ丸めて反映。空欄・不正値は20に戻す
+document.addEventListener('change',e=>{
+  if(e.target.id!=='gin')return;
+  const S=cur.set,prev=gOf(S);let v=Math.round(Number(e.target.value));
+  if(!Number.isFinite(v)||v<1||v>20)v=20;
+  e.target.value=v;
+  if(v!==prev){cur.log.push({a:'g',prev:S.g});S.g=v;delete S.part;buzz(12);save()}
+  e.target.blur();draw();
+});
+document.addEventListener('keydown',e=>{if(e.target.id==='gin'&&e.key==='Enter')e.target.blur()});
 // スワイプ誤爆対策：指を置いた位置から一定以上動いたらタップとみなさない
 let px=0,py=0,ptgt=null;const MOVE=10;
 const unpress=()=>{if(ptgt){ptgt.classList.remove('pressed');ptgt=null}};

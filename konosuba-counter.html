@@ -3,51 +3,65 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <style>
 :root{--bg:#151109;--panel:#1F1A11;--panel2:#2A2217;--line:#3B3123;
- --amber:#F2A62A;--amber2:#8A6318;--teal:#3FC79A;--ink:#F2EADB;--ink2:#A79880;--ink3:#6E6353}
+ --amber:#F2A62A;--amber2:#8A6318;--teal:#3FC79A;--ink:#F2EADB;--ink2:#A79880;--ink3:#6E6353;
+ --qb:#5B9BE6;--qy:#E8C547;--qg:#5CC46A}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 button{touch-action:pan-y}
 body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.6;padding-bottom:28px;
  font-family:-apple-system,"Helvetica Neue","Hiragino Sans","Noto Sans JP",sans-serif}
 .seg{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
 header{padding:16px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:10px}
-h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.03em;flex:1}
-.tot{font-size:12px;color:var(--ink3)}
+h1{margin:0;font-size:15px;font-weight:500;letter-spacing:.03em;flex:none;white-space:nowrap}
+.tot{flex:1;min-width:0;font-size:11px;color:var(--ink3);text-align:right}
 section{padding:16px;border-bottom:1px solid var(--line)}
 .lbl{font-size:11px;letter-spacing:.11em;color:var(--ink3);text-transform:uppercase;margin:0 0 9px;
  display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:28px}
 .lbl .warn{color:var(--amber);letter-spacing:.03em}
+.lbl .now{color:var(--ink);font-size:13px;letter-spacing:.02em;text-transform:none}
 .chips{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.chip{padding:11px 6px;border:1px solid var(--line);background:var(--panel);color:var(--ink2);
+.chips.c4{grid-template-columns:repeat(4,1fr)}
+.chips.c3{grid-template-columns:repeat(3,1fr)}
+.chip{padding:11px 4px;border:1px solid var(--line);background:var(--panel);color:var(--ink2);
  border-radius:9px;font-size:13px;text-align:center;font-family:inherit;cursor:pointer}
+.chip.sm{padding:8px 2px;font-size:12px}
 .chip[aria-pressed=true]{border-color:var(--amber);color:var(--amber);background:var(--panel2)}
 .chip small{display:block;font-size:10px;color:var(--ink3);margin-top:1px}
 .chip[aria-pressed=true] small{color:var(--amber2)}
-.grp{margin-bottom:14px}
-.gh{font-size:12px;color:var(--ink2);margin:0 0 7px;display:flex;justify-content:space-between}
-.gh em{font-style:normal;color:var(--ink3);font-size:11px}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.tap{padding:14px 8px;border:1px solid var(--line);background:var(--panel);border-radius:11px;
+.sub{font-size:12px;color:var(--ink2);margin:14px 0 7px;display:flex;justify-content:space-between;gap:8px}
+.sub:first-of-type{margin-top:4px}
+.sub em{font-style:normal;color:var(--ink3);font-size:11px}
+.quad{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tap{padding:12px 4px;border:1px solid var(--line);background:var(--panel);border-radius:11px;
  color:var(--ink);font-family:inherit;cursor:pointer;text-align:center}
-.tap b{display:block;font-size:26px;font-weight:500;line-height:1.15}
-.tap span{font-size:11.5px;color:var(--ink3)}
+.tap b{display:block;font-size:22px;font-weight:500;line-height:1.15}
+.tap span{font-size:11px;color:var(--ink3)}
 .tap.on b{color:var(--teal)}
 .tap.off b{color:var(--ink2)}
+.tags{font-size:12.5px;color:var(--ink2);margin-top:8px;min-height:20px}
+.tags b{color:var(--amber);font-weight:500}
 .row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
-.rn{flex:1}.rn b{display:block;font-weight:400;font-size:14px}
+.rn{flex:1;min-width:0}.rn b{display:block;font-weight:400;font-size:14px}
 .rn i{font-style:normal;font-size:11px;color:var(--ink3)}
-.val{width:56px;text-align:right;font-size:25px;color:var(--amber);font-weight:500}
+.val{width:48px;text-align:right;font-size:24px;color:var(--amber);font-weight:500}
 .btn{width:44px;height:44px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);
  border-radius:11px;font-size:20px;font-family:inherit;cursor:pointer;line-height:1}
 .btn.m{width:38px;height:38px;color:var(--ink3);font-size:21px}
 .wide{width:100%;padding:14px;border-radius:11px;border:1px solid var(--amber);background:var(--panel2);
- color:var(--amber);font-size:15px;font-family:inherit;cursor:pointer}
+ color:var(--amber);font-size:15px;font-family:inherit;cursor:pointer;margin-top:14px}
 .wide:disabled{border-color:var(--line);color:var(--ink3);background:var(--panel)}
+.wide.teal{border-color:var(--teal);color:var(--teal)}
+.wide.teal:disabled{border-color:var(--line);color:var(--ink3)}
 .ghost{border-color:var(--line);color:var(--ink3);background:transparent;margin-top:8px}
-#commit{margin-top:22px}
 .mini{border:1px solid var(--line);background:var(--panel);color:var(--ink2);border-radius:7px;
  font-size:11px;letter-spacing:0;padding:6px 11px;font-family:inherit;cursor:pointer;flex:none;
- max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ max-width:62%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:none}
 .mini[hidden]{display:none}
+.qrow{display:grid;grid-template-columns:62px 1fr 1fr;gap:7px;align-items:center;margin:6px 0}
+.qn{font-size:13px;display:flex;align-items:center;gap:6px}
+.qn i{font-style:normal;font-size:10px;color:var(--ink3);display:block}
+.dot{width:11px;height:11px;border-radius:50%;flex:none}
+.qrow .tap{padding:9px 4px;display:flex;justify-content:center;align-items:baseline;gap:6px}
+.qrow .tap b{display:inline;font-size:20px}
 /* 押下フィードバック */
 .btn,.tap,.chip,.mini,.wide{transition:transform .06s,background .06s,border-color .06s}
 .btn.pressed,.mini.pressed{background:var(--panel2);border-color:var(--amber2);transform:scale(.93)}
@@ -65,13 +79,14 @@ section{padding:16px;border-bottom:1px solid var(--line)}
 .bc b{display:block;font-size:21px;font-weight:500;color:var(--amber)}
 .bc span{font-size:10px;color:var(--ink3);letter-spacing:.05em}
 .h{font-size:12.5px;color:var(--ink2);padding:7px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
-.h span{flex:1}
+.h span{flex:1;min-width:0}
 .h.bad{color:var(--amber)}
+.h .tg{flex:none;font-size:10px;color:var(--ink3);border:1px solid var(--line);border-radius:4px;padding:0 4px}
 .x{border:0;background:none;color:var(--ink3);font-size:17px;cursor:pointer;font-family:inherit;
  width:34px;height:34px;flex:none}
 .x.pressed{color:var(--amber);transform:scale(.88)}
 .note{font-size:11.5px;color:var(--ink3);line-height:1.7;margin-top:11px}
-.empty{color:var(--ink3);font-size:13px;padding:12px 0}
+.empty{color:var(--ink3);font-size:13px;padding:10px 0}
 </style>
 
 <header><h1>このすば 設定推測</h1><div class="tot seg" id="tot"></div></header>
@@ -79,30 +94,38 @@ section{padding:16px;border-bottom:1px solid var(--line)}
 <section>
   <p class="lbl"><span>有利区間 1G目の成立役</span><span class="warn" id="rolewarn"></span></p>
   <div class="chips" id="roles"></div>
+  <p class="sub"><span>記録を始めた周期</span><em>途中から座った時はその周期を選ぶ</em></p>
+  <div class="chips c4" id="starts"></div>
+  <p class="sub"><span>Lv4濃厚演出</span><em>出た区間だけオン</em></p>
+  <div class="chips"><button class="chip" id="lv4"></button></div>
 </section>
 
 <section>
-  <p class="lbl"><span>セット記録（1タップ＝1セット）</span><button class="mini" id="undo" hidden></button></p>
-  <div class="grp">
-    <p class="gh"><span>1巡目の2〜6セット目</span><em>アクア以外</em></p>
-    <div class="pair">
-      <button class="tap on" data-t="b1"><b id="v-b1" data-key="b1">0</b><span>SKW移行</span></button>
-      <button class="tap off" data-t="b0"><b id="v-b0" data-key="b0">0</b><span>非移行</span></button>
-    </div>
-  </div>
-  <div class="grp">
-    <p class="gh"><span>それ以外のセット</span><em>1巡目アクア・2巡目以降</em></p>
-    <div class="pair">
-      <button class="tap on" data-t="a1"><b id="v-a1" data-key="a1">0</b><span>SKW移行</span></button>
-      <button class="tap off" data-t="a0"><b id="v-a0" data-key="a0">0</b><span>非移行</span></button>
-    </div>
-  </div>
-  <div id="counters"></div>
+  <p class="lbl"><span class="now" id="setttl"></span><button class="mini" id="undo" hidden></button></p>
+  <p class="sub"><span>SKW</span><span class="warn" id="skwwarn" style="color:var(--amber);font-size:11px"></span></p>
+  <div class="chips c3" id="skw"></div>
+  <p class="sub"><span>強キャラ役 → お風呂の連続数</span><em>強キャラ役1回ごとに1タップ</em></p>
+  <div class="quad" id="strong"></div>
+  <div class="tags" id="stronglist"></div>
+  <div id="counters" style="margin-top:8px"></div>
+  <div class="chips" style="margin-top:8px"><button class="chip" id="part"></button></div>
+  <button class="wide teal" id="setcommit">このセットを確定</button>
+</section>
+
+<section>
+  <p class="lbl"><span>この区間のセット</span><span class="seg" id="ivsum"></span></p>
+  <div id="setlist"></div>
   <button class="wide" id="commit">この有利区間を確定して次へ</button>
 </section>
 
 <section>
-  <p class="lbl"><span>AT終了時ボイス（全区間通しで計上）</span><button class="mini" id="vundo" hidden></button></p>
+  <p class="lbl"><span>クエスト最終色と結果（通しで計上）</span><button class="mini" id="qundo" hidden></button></p>
+  <div id="quests"></div>
+  <div class="note">赤（80pt以上）は設定1以外の成功率が非公開のため記録しません。</div>
+</section>
+
+<section>
+  <p class="lbl"><span>AT終了時ボイス（通しで計上）</span><button class="mini" id="vundo" hidden></button></p>
   <div id="voices"></div>
 </section>
 
@@ -134,6 +157,8 @@ const LDIST={
         [27.34,45.31,24.22,3.13],[27.34,45.31,18.75,8.59],[20.31,45.31,25.00,9.38]],
  strong:[[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25],[0,0,75,25]]};
 
+// モード移行率 [SKWなし通常,高確,超高確, SKWあり通常,高確,超高確]
+// A: 2周期目以降＆1周期目のアクア / B: 1周期目のアクア以外
 const A=[
  [[92.19,.39,.39,6.25,.39,.39],[92.19,.39,.39,6.25,.39,.39],[89.84,.78,.78,7.03,.78,.78],
   [87.50,1.17,1.17,7.81,1.17,1.17],[84.38,1.95,1.95,8.59,1.56,1.56],[82.03,2.34,2.34,9.38,1.95,1.95]],
@@ -152,8 +177,34 @@ const B=[
  [[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32],[32,32,32,96,32,32]]
 ].map(l=>l.map(v=>v.map(x=>x/256)));
 
+// 状態別：弱キャラ役1回の期待お風呂個数・強キャラ役1回の期待個数・BAR揃い(1G)
 const WEAK=[0.004,0.031,0.137],STRONG=[0.512,0.891,1.315],
       BAR=[20/194.7,20/129.3,20/86.2],WEAKN=20/3.2;
+// 1セット(20G)の「強キャラ役以外」由来のお風呂期待個数（弱キャラ役＋BAR揃い）
+const LAM_OTH=[0,1,2].map(st=>WEAKN*WEAK[st]+BAR[st]);
+
+// 強キャラ役1回あたりのお風呂当選個数（0/1/2/3）
+const SM=[[50.0,49.2,.4,.4],[25.0,62.5,10.9,1.6],[0,75.0,18.8,6.3]]
+ .map(r=>{const t=r.reduce((a,b)=>a+b,0);return r.map(x=>x/t)});
+// 連続の切れ目で弱キャラ役当選が紛れ込む率（1Gあたり）＝1/3.2×弱キャラ役のお風呂当選率
+const CONT=[0.004,0.031,0.125].map(x=>x/3.2);
+const CONT_WMAX=5; // 紛らわしい長さ：0〜5Gを均等に平均（断定を避ける）
+// 観測される連続数（0/1/2/3+）の状態別確率
+const PCH=[0,1,2].map(st=>{const o=[0,0,0,0],c=CONT[st];
+ for(let w=0;w<=CONT_WMAX;w++){const ww=1/(CONT_WMAX+1);
+  // 紛れ込み個数 e ~ 二項(w, c)
+  const pe=[];for(let e=0;e<=w;e++)pe.push(binom(w,e)*Math.pow(c,e)*Math.pow(1-c,w-e));
+  for(let k=0;k<4;k++){const pk=SM[st][k];if(pk<=0)continue;
+   if(k===0){o[0]+=ww*pk;continue}
+   pe.forEach((p,e)=>{o[Math.min(k+e,3)]+=ww*pk*p})}}
+ return o});
+function binom(n,k){let r=1;for(let i=1;i<=k;i++)r=r*(n-k+i)/i;return r}
+const PFLOOR=1e-4; // 押し間違い対策：理論上0の組み合わせでも完全排除はしない
+
+// クエスト：最終ポイント帯（色）別の成功率
+const QUEST=[{k:'q0',n:'青',s:'0〜39pt',c:'var(--qb)',p:[6.3,7.0,7.8,8.6,9.4,10.2]},
+ {k:'q1',n:'黄',s:'40〜59pt',c:'var(--qy)',p:[12.5,14.1,15.6,17.2,18.8,20.3]},
+ {k:'q2',n:'緑',s:'60〜79pt',c:'var(--qg)',p:[37.5,39.1,40.6,42.2,43.8,45.3]}];
 
 // AT終了時ボイス（多項）。各行[設定1..6]の出現率。全区間通しで独立計上。
 const VOICES=[
@@ -171,90 +222,171 @@ function voiceLog(vc,s){let t=0;
  for(let i=0;i<VOICES.length;i++){const c=vc[VOICES[i].k]||0;
    if(c>0)t+=c*Math.log(Math.max(VOICES[i].p[s]/100,VEPS));}
  return t;}
+function questLog(q,s){let t=0;
+ for(const Q of QUEST){const p=Q.p[s]/100,a=q[Q.k+'s']||0,b=q[Q.k+'f']||0;
+   t+=a*Math.log(p)+b*Math.log(1-p)}
+ return t}
 
 const skw=(T,l,s)=>T[l][s][3]+T[l][s][4]+T[l][s][5];
-function bath(T,l,s,sp,on){const v=T[l][s],o=on?3:0;
- const tot=v[o]+v[o+1]+v[o+2];if(tot<=0)return 0;let e=0;
- for(let i=0;i<3;i++)e+=(v[o+i]/tot)*(WEAKN*WEAK[i]+sp*STRONG[i]+BAR[i]);return e}
 function lf(n){let r=0;for(let i=2;i<=n;i++)r+=Math.log(i);return r}
 function lbin(k,n,p){if(n<=0)return 0;p=Math.min(Math.max(p,1e-9),1-1e-9);
  return lf(n)-lf(k)-lf(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p)}
 function poi(k,lam){if(lam<=0)return k>0?-700:0;return k*Math.log(lam)-lam-lf(k)}
+function lse(a){if(!a.length)return -700;const m=Math.max(...a);
+ return m+Math.log(a.reduce((t,x)=>t+Math.exp(x-m),0))}
 
-function logLik(iv,s){
-  const w=LDIST[iv.role];if(!w)return 0;          // 役不明の区間は尤度に寄与させない
+// ── 旧形式（v6まで：区間合計）の尤度。読み込んだ過去データ用にそのまま残す
+function bathOld(T,l,s,sp,on){const v=T[l][s],o=on?3:0;
+ const tot=v[o]+v[o+1]+v[o+2];if(tot<=0)return 0;let e=0;
+ for(let i=0;i<3;i++)e+=(v[o+i]/tot)*(WEAKN*WEAK[i]+sp*STRONG[i]+BAR[i]);return e}
+function logLikOld(iv,s){
+  const w=LDIST[iv.role];if(!w)return 0;
   const nA=iv.a1+iv.a0,nB=iv.b1+iv.b0,N=nA+nB;if(N<=0)return 0;
   const nK=iv.a1+iv.b1,nN=iv.a0+iv.b0;
   const spK=nK>0?iv.strongK/nK:0,spN=nN>0?iv.strongN/nN:0;
   const wl=w[s];let tot=0;
   for(let l=0;l<4;l++){const pw=wl[l]/100;if(pw<=0)continue;
-    const lamK=iv.a1*bath(A,l,s,spK,1)+iv.b1*bath(B,l,s,spK,1);
-    const lamN=iv.a0*bath(A,l,s,spN,0)+iv.b0*bath(B,l,s,spN,0);
+    const lamK=iv.a1*bathOld(A,l,s,spK,1)+iv.b1*bathOld(B,l,s,spK,1);
+    const lamN=iv.a0*bathOld(A,l,s,spN,0)+iv.b0*bathOld(B,l,s,spN,0);
     const lg=lbin(iv.a1,nA,skw(A,l,s))+lbin(iv.b1,nB,skw(B,l,s))
             +poi(iv.bathK,lamK)+poi(iv.bathN,lamN);
     tot+=pw*Math.exp(lg);}
   return tot>0?Math.log(tot):-700;
 }
 
-const BLANK=()=>({role:null,a1:0,a0:0,b1:0,b0:0,bathK:0,bathN:0,strongK:0,strongN:0,log:[]});
-const VBLANK=()=>({v0:0,v1:0,v2:0,v3:0,v4:0,v5:0,v6:0,v7:0,v8:0,log:[]});
-let ivs=[],cur=BLANK(),voice=VBLANK(),flashKey=null;
-const FIELDS=[{k:'bathK',n:'お風呂（SKWあり時）',s:'当該セットで獲得した個数'},
-              {k:'bathN',n:'お風呂（SKWなし時）',s:'非移行セットで獲得した個数'},
-              {k:'strongK',n:'強キャラ役（SKWあり時）',s:'当該セットでの実測回数'},
-              {k:'strongN',n:'強キャラ役（SKWなし時）',s:'非移行セットでの実測回数'}];
-// 取り消しボタンに「何を戻すか」を出すための表示名
-const LABEL={a1:'SKW移行',a0:'非移行',b1:'SKW移行(1巡目)',b0:'非移行(1巡目)',
- bathK:'風呂(有)',bathN:'風呂(無)',strongK:'強(有)',strongN:'強(無)'};
-VOICES.forEach(v=>LABEL[v.k]=v.n);
+// ── v7：セット単位
+// 周期位置：開始位置 start(0〜5=1巡目の各周期, 6=2巡目以降) からの通し番号で決まる
+const CYC=['アクア','めぐみん','ダクネス','ウィズ','ゆんゆん','クリス'];
+const STARTS=['アクア','めぐみん','ダクネス','ウィズ','ゆんゆん','エリス','2巡目以降'];
+function posOf(start,i){
+ if(start===6)return{T:A,first:false,label:'2巡目以降'};
+ const p=start+i;
+ if(p<6)return{T:p===0?A:B,first:p>0,label:'1巡目 '+(p===5?'エリス':CYC[p])};
+ return{T:A,first:false,label:(Math.floor(p/6)+1)+'巡目 '+CYC[p%6]};
+}
+const SKWV={on:1,off:0,unk:null};
+// 1セットの対数尤度（モード選択レベル l・設定 s を固定）
+function setLog(st,T,l,s){const v=T[l][s],sk=SKWV[st.skw],terms=[];
+ for(let on=0;on<2;on++){if(sk!==null&&sk!==undefined&&sk!==on)continue;
+  for(let z=0;z<3;z++){const p=v[on*3+z];if(p<=0)continue;
+   let lg=Math.log(p);
+   for(const k of st.strong)lg+=Math.log(Math.max(PCH[z][k],PFLOOR));
+   if(!st.part)lg+=poi(st.oth,LAM_OTH[z]);
+   terms.push(lg)}}
+ return lse(terms)}
+function logLik7(iv,s){
+ const w=LDIST[iv.role];if(!w||!iv.sets.length)return 0;
+ const terms=[];
+ for(let l=0;l<4;l++){if(iv.lv4&&l!==3)continue;
+  const pw=w[s][l]/100;if(pw<=0)continue;
+  let lg=Math.log(pw);
+  iv.sets.forEach((st,i)=>{lg+=setLog(st,posOf(iv.start,i).T,l,s)});
+  terms.push(lg)}
+ return lse(terms)}
+const logLik=(iv,s)=>iv.t===7?logLik7(iv,s):logLikOld(iv,s);
 
-function post(){const lg=[0,1,2,3,4,5].map(s=>ivs.reduce((a,iv)=>a+logLik(iv,s),0)+voiceLog(voice,s));
+const SBLANK=()=>({skw:'',strong:[],oth:0,cyc:0,part:false});
+const BLANK=()=>({role:null,start:0,lv4:false,sets:[],set:SBLANK(),log:[]});
+const VBLANK=()=>({v0:0,v1:0,v2:0,v3:0,v4:0,v5:0,v6:0,v7:0,v8:0,log:[]});
+const QBLANK=()=>({q0s:0,q0f:0,q1s:0,q1f:0,q2s:0,q2f:0,log:[]});
+let ivs=[],cur=BLANK(),voice=VBLANK(),quest=QBLANK(),flashKey=null;
+const FIELDS=[{k:'oth',n:'その他のお風呂',s:'弱キャラ役・BAR揃い経由の個数'},
+              {k:'cyc',n:'周期開始時のお風呂',s:'記録のみ（判定には使わない）'}];
+const LABEL={skw:'SKW選択',st0:'強→0個',st1:'強→1個',st2:'強→2個',st3:'強→3個+',
+ oth:'その他お風呂',cyc:'周期開始お風呂',part:'途中終了',commit:'セット確定'};
+VOICES.forEach(v=>LABEL[v.k]=v.n);
+QUEST.forEach(q=>{LABEL[q.k+'s']=q.n+'・成功';LABEL[q.k+'f']=q.n+'・失敗'});
+
+function post(){const lg=[0,1,2,3,4,5].map(s=>ivs.reduce((a,iv)=>a+logLik(iv,s),0)
+  +voiceLog(voice,s)+questLog(quest,s));
  const m=Math.max(...lg),e=lg.map(x=>Math.exp(x-m)),t=e.reduce((a,b)=>a+b,0);return e.map(x=>x/t)}
 const voiceTot=()=>VOICES.reduce((a,v)=>a+(voice[v.k]||0),0);
-const setsOf=o=>o.a1+o.a0+o.b1+o.b0;
+const questTot=()=>QUEST.reduce((a,q)=>a+(quest[q.k+'s']||0)+(quest[q.k+'f']||0),0);
+const setsOfOld=o=>o.a1+o.a0+o.b1+o.b0;
+const setsOf=iv=>iv.t===7?iv.sets.length:setsOfOld(iv);
 const roleName=k=>{const r=ROLES.find(x=>x.k===k);return r?r.n:'役未選択'};
+const setEmpty=S=>!S.skw&&!S.strong.length&&!S.oth&&!S.cyc&&!S.part;
+const SKWN={on:'SKWあり',off:'SKWなし',unk:'SKW不明'};
+function setText(S){
+ const st=S.strong.length?'強'+S.strong.map(k=>k===3?'3+':k).join('·'):'強なし';
+ return `${SKWN[S.skw]||'SKW未選択'}・${st}・他${S.oth}`+(S.cyc?`・周${S.cyc}`:'')+(S.part?'・途中終了':'')}
+function ivText(iv){
+ if(iv.t!==7)return `${setsOfOld(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}`;
+ const nK=iv.sets.filter(s=>s.skw==='on').length,ns=iv.sets.reduce((a,s)=>a+s.strong.length,0),
+  nb=iv.sets.reduce((a,s)=>a+s.strong.reduce((x,k)=>x+k,0),0),no=iv.sets.reduce((a,s)=>a+s.oth,0);
+ return `${STARTS[iv.start]}〜・${iv.sets.length}set・SKW${nK}・強${ns}(風呂${nb})・他${no}`+(iv.lv4?'・Lv4':'')}
 
-function miniUndo(el,log){
- const last=log[log.length-1];
+function miniUndo(el,last){
  if(!last){el.hidden=true;return}
  el.hidden=false;el.textContent='↩ '+(LABEL[last]||last)+' を取消';
 }
 
 function render(){
+  const S=cur.set;
   document.getElementById('roles').innerHTML=ROLES.map(r=>
    `<button class="chip" data-r="${r.k}" aria-pressed="${cur.role===r.k}">${r.n}<small>${r.s}</small></button>`).join('');
   document.getElementById('rolewarn').textContent=cur.role?'':'※未選択';
-  ['a1','a0','b1','b0'].forEach(k=>document.getElementById('v-'+k).textContent=cur[k]);
+  document.getElementById('starts').innerHTML=STARTS.map((n,i)=>
+   `<button class="chip sm" data-st="${i}" aria-pressed="${cur.start===i}">${n}</button>`).join('');
+  const lv=document.getElementById('lv4');
+  lv.setAttribute('aria-pressed',cur.lv4);lv.innerHTML=cur.lv4?'Lv4濃厚演出あり':'Lv4濃厚演出なし';
+
+  const pos=posOf(cur.start,cur.sets.length);
+  document.getElementById('setttl').textContent=`${cur.sets.length+1}セット目・${pos.label}`;
+  document.getElementById('skwwarn').textContent=S.skw?'':'※未選択';
+  document.getElementById('skw').innerHTML=[['on','あり'],['off','なし'],['unk','不明']].map(([k,n])=>
+   `<button class="chip" data-skw="${k}" aria-pressed="${S.skw===k}">${n}</button>`).join('');
+  const cnt=[0,0,0,0];S.strong.forEach(k=>cnt[k]++);
+  document.getElementById('strong').innerHTML=['0個','1個','2個','3個+'].map((n,k)=>
+   `<button class="tap ${k?'on':'off'}" data-sk="${k}"><b data-key="st${k}">${cnt[k]}</b><span>${n}</span></button>`).join('');
+  document.getElementById('stronglist').innerHTML=S.strong.length
+   ?`強キャラ役 <b>${S.strong.length}</b>回：${S.strong.map(k=>k===3?'3+':k).join('・')}`:'このセットの強キャラ役はまだありません';
   document.getElementById('counters').innerHTML=FIELDS.map(f=>
    `<div class="row"><button class="btn m" data-f="${f.k}" data-d="-1">−</button>
     <div class="rn"><b>${f.n}</b><i>${f.s}</i></div>
-    <div class="val seg" data-key="${f.k}">${cur[f.k]}</div>
+    <div class="val seg" data-key="${f.k}">${S[f.k]}</div>
     <button class="btn" data-f="${f.k}" data-d="1">＋</button></div>`).join('');
-  document.getElementById('commit').disabled=setsOf(cur)===0;
-  miniUndo(document.getElementById('undo'),cur.log);
+  const pt=document.getElementById('part');
+  pt.setAttribute('aria-pressed',S.part);
+  pt.innerHTML=S.part?'途中終了（AT当選等）<small>その他お風呂は判定から除外</small>':'20G消化<small>AT当選等で途中終了したらタップ</small>';
+  document.getElementById('setcommit').disabled=setEmpty(S);
+  miniUndo(document.getElementById('undo'),(cur.log[cur.log.length-1]||{}).a);
+
+  document.getElementById('ivsum').textContent=cur.sets.length?`${cur.sets.length}set`:'';
+  document.getElementById('setlist').innerHTML=cur.sets.length
+   ?cur.sets.map((s,i)=>`<div class="h"><span class="seg">${String(i+1).padStart(2,'0')}</span>
+     <span>${posOf(cur.start,i).label} ／ ${setText(s)}</span></div>`).join('')
+   :'<div class="empty">まだ確定したセットはありません。</div>';
+  document.getElementById('commit').disabled=cur.sets.length===0&&setEmpty(S);
+
+  document.getElementById('quests').innerHTML=QUEST.map(q=>
+   `<div class="qrow"><div class="qn"><span class="dot" style="background:${q.c}"></span><span>${q.n}<i>${q.s}</i></span></div>
+    <button class="tap on" data-q="${q.k}s"><b data-key="${q.k}s" class="seg">${quest[q.k+'s']}</b><span>成功</span></button>
+    <button class="tap off" data-q="${q.k}f"><b data-key="${q.k}f" class="seg">${quest[q.k+'f']}</b><span>失敗</span></button></div>`).join('');
+  miniUndo(document.getElementById('qundo'),quest.log[quest.log.length-1]);
 
   document.getElementById('voices').innerHTML=VOICES.map(v=>
    `<div class="row"><button class="btn m" data-v="${v.k}" data-vd="-1">−</button>
     <div class="rn"><b>${v.n}</b><i>${v.s}</i></div>
     <div class="val seg" data-key="${v.k}">${voice[v.k]||0}</div>
     <button class="btn" data-v="${v.k}" data-vd="1">＋</button></div>`).join('');
-  miniUndo(document.getElementById('vundo'),voice.log);
+  miniUndo(document.getElementById('vundo'),voice.log[voice.log.length-1]);
 
-  const p=post(),ts=ivs.reduce((a,i)=>a+setsOf(i),0),vt=voiceTot();
-  document.getElementById('tot').textContent=(ivs.length||vt)
-   ?`${ivs.length}区間 / ${ts}set / ${ts*20}G`+(vt?` / 声${vt}`:''):'';
+  const p=post(),ts=ivs.reduce((a,i)=>a+setsOf(i),0),vt=voiceTot(),qt=questTot();
+  document.getElementById('tot').textContent=(ivs.length||vt||qt)
+   ?`${ivs.length}区間 / ${ts}set / ${ts*20}G`+(qt?` / ク${qt}`:'')+(vt?` / 声${vt}`:''):'';
   document.getElementById('post').innerHTML=p.map((v,i)=>
    `<div class="bar"><div class="bk seg">${i+1}</div><div class="bt"><div class="bf" style="width:${(v*100).toFixed(1)}%"></div></div>
     <div class="bv seg">${(v*100).toFixed(1)}%</div></div>`).join('');
   document.getElementById('bands').innerHTML=[['低 1・2',p[0]+p[1]],['中 3・4',p[2]+p[3]],['高 5・6',p[4]+p[5]]]
    .map(([n,v])=>`<div class="bc"><b class="seg">${(v*100).toFixed(0)}%</b><span>${n}</span></div>`).join('');
-  document.getElementById('sum').textContent= (ivs.length===0&&vt===0)
-   ? '有利区間を確定するか、ボイスを記録すると推測が出ます。事前分布は設定1〜6の均等。'
-   : '低群と高群の判別は4000Gで約63%、6000Gで約75%が目安。SKW系は高低群、ボイスは下限の切り上げ（格上ボイスで低設定を排除）に効きます。設定を1〜6で言い当てる精度はありません。';
-  document.getElementById('hist').innerHTML= ivs.length===0
+  document.getElementById('sum').textContent=(ivs.length===0&&vt===0&&qt===0)
+   ? '有利区間を確定するか、クエスト・ボイスを記録すると推測が出ます。事前分布は設定1〜6の均等。確定前の区間は推測に含みません。'
+   : 'SKW・お風呂・クエストは高低群、ボイスは奇偶と下限の切り上げに効きます。強キャラ役の連続数は切れ目の紛れ込み（0〜5G均等）込みで計算。設定を1〜6で言い当てる精度はありません。';
+  document.getElementById('hist').innerHTML=ivs.length===0
    ? '<div class="empty">まだ確定した有利区間はありません。</div>'
    : ivs.map((iv,i)=>`<div class="h${iv.role?'':' bad'}"><span class="seg">${String(i+1).padStart(2,'0')}</span>
-     <span>${roleName(iv.role)} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}・強${iv.strongK}/${iv.strongN}</span>
+     <span>${roleName(iv.role)} ／ ${ivText(iv)}</span>${iv.t===7?'':'<span class="tg">旧</span>'}
      <button class="x" data-del="${i}" aria-label="削除">×</button></div>`).join('');
 
   if(flashKey){const el=document.querySelector(`[data-key="${flashKey}"]`);
@@ -262,65 +394,92 @@ function render(){
    flashKey=null;}
 }
 
-function mig(o){
+// ── 保存・読込（旧データは「旧」区間として残し、旧方式のまま計算）
+function migOld(o){
  const nK=(o.a1||0)+(o.b1||0),nN=(o.a0||0)+(o.b0||0),t=nK+nN;
+ ['a1','a0','b1','b0'].forEach(k=>{if(o[k]===undefined)o[k]=0});
  if(o.bath!==undefined&&o.bathK===undefined){
-   o.bathK=t>0?Math.round((o.bath||0)*nK/t):0;
-   o.bathN=(o.bath||0)-o.bathK;delete o.bath;}
+   o.bathK=t>0?Math.round((o.bath||0)*nK/t):0;o.bathN=(o.bath||0)-o.bathK;delete o.bath;}
  if(o.strong!==undefined&&o.strongK===undefined){
-   o.strongK=t>0?Math.round((o.strong||0)*nK/t):0;
-   o.strongN=(o.strong||0)-o.strongK;delete o.strong;}
- if(o.bathK===undefined)o.bathK=0;
- if(o.bathN===undefined)o.bathN=0;
- if(o.strongK===undefined)o.strongK=0;
- if(o.strongN===undefined)o.strongN=0;
- if(o.role===undefined)o.role=null;
+   o.strongK=t>0?Math.round((o.strong||0)*nK/t):0;o.strongN=(o.strong||0)-o.strongK;delete o.strong;}
+ ['bathK','bathN','strongK','strongN'].forEach(k=>{if(o[k]===undefined)o[k]=0});
+ if(o.role===undefined)o.role=null;delete o.log;delete o.t;
  return o;}
-function save(){try{localStorage.setItem('konosuba:v5',JSON.stringify({ivs,cur,voice}))}catch(e){}}
+function save(){try{localStorage.setItem('konosuba:v7',JSON.stringify({ivs,cur,voice,quest}))}catch(e){}}
 let loaded=false;
 function load(){if(loaded)return;loaded=true;
- try{let raw=localStorage.getItem('konosuba:v5')
-   ||localStorage.getItem('konosuba:v4')
-   ||localStorage.getItem('konosuba:v3')
-   ||localStorage.getItem('konosuba:v2');
- if(raw){const d=JSON.parse(raw);ivs=(d.ivs||[]).map(mig);
-   cur=d.cur?mig(d.cur):cur;if(!cur.log)cur.log=[];
-   if(d.voice){voice={...VBLANK(),...d.voice};if(!voice.log)voice.log=[]}}}catch(e){}
+ try{const raw7=localStorage.getItem('konosuba:v7');
+  if(raw7){const d=JSON.parse(raw7);
+    ivs=(d.ivs||[]).map(iv=>iv.t===7?iv:migOld(iv));
+    if(d.cur&&Array.isArray(d.cur.sets)){cur={...BLANK(),...d.cur};cur.set={...SBLANK(),...cur.set};if(!cur.log)cur.log=[]}
+    if(d.voice){voice={...VBLANK(),...d.voice};if(!voice.log)voice.log=[]}
+    if(d.quest){quest={...QBLANK(),...d.quest};if(!quest.log)quest.log=[]}}
+  else{const raw=localStorage.getItem('konosuba:v5')||localStorage.getItem('konosuba:v4')
+     ||localStorage.getItem('konosuba:v3')||localStorage.getItem('konosuba:v2');
+   if(raw){const d=JSON.parse(raw);ivs=(d.ivs||[]).map(migOld);
+     // 旧版で確定前だった区間は、データがあれば「旧」区間として引き継ぐ
+     if(d.cur){const c=migOld({...d.cur});if(setsOfOld(c)>0)ivs.push(c)}
+     if(d.voice){voice={...VBLANK(),...d.voice};voice.log=[]}
+     save()}}}catch(e){console.error('読込失敗',e)}
  draw()}
 
-// 保存を先に、描画は失敗しても状態を巻き添えにしない
 function draw(){try{render()}catch(e){console.error('render失敗',e)}}
 const buzz=n=>{try{if(navigator.vibrate)navigator.vibrate(n)}catch(e){}};
 
+// 現在の区間の取消：セット内の操作→セット確定、の順に1つずつ戻す
+function undoCur(){
+ const e=cur.log.pop();if(!e)return;const S=cur.set;
+ if(e.a==='skw')S.skw=e.prev;
+ else if(e.a.startsWith('st'))S.strong.pop();
+ else if(e.a==='oth'||e.a==='cyc'){if(S[e.a]>0)S[e.a]--}
+ else if(e.a==='part')S.part=!S.part;
+ else if(e.a==='commit'){const last=cur.sets.pop();if(last)cur.set=last}
+ flashKey=e.a.startsWith('st')?e.a:(e.a==='oth'||e.a==='cyc'?e.a:null);
+}
+function commitSet(){
+ const S=cur.set;if(setEmpty(S))return false;
+ if(!S.skw){buzz(28);alert('このセットのSKWが未選択です。\n分からなければ「不明」を選んでください。');return false}
+ cur.sets.push(S);cur.set=SBLANK();cur.log.push({a:'commit'});return true}
+
 function handle(t){
-  const ds=t.dataset||{};
+  const ds=t.dataset||{},S=cur.set;
   if(ds.r){cur.role=ds.r;buzz(12)}
-  else if(ds.t){const k=ds.t;cur[k]++;cur.log.push(k);flashKey=k;buzz(12)}
+  else if(ds.st!==undefined){cur.start=Number(ds.st);buzz(12)}
+  else if(t.id==='lv4'){cur.lv4=!cur.lv4;buzz(12)}
+  else if(ds.skw){if(S.skw!==ds.skw){cur.log.push({a:'skw',prev:S.skw});S.skw=ds.skw}buzz(12)}
+  else if(ds.sk!==undefined){const k=Number(ds.sk);S.strong.push(k);cur.log.push({a:'st'+k});flashKey='st'+k;buzz(12)}
   else if(ds.f){const f=ds.f,d=Number(ds.d);
-    if(d>0){cur[f]++;cur.log.push(f);flashKey=f;buzz(12)}
-    else if(cur[f]>0){cur[f]--;const i=cur.log.lastIndexOf(f);if(i>=0)cur.log.splice(i,1);flashKey=f;buzz(28)}
+    if(d>0){S[f]++;cur.log.push({a:f});flashKey=f;buzz(12)}
+    else if(S[f]>0){S[f]--;
+      for(let i=cur.log.length-1;i>=0;i--){if(cur.log[i].a==='commit')break;if(cur.log[i].a===f){cur.log.splice(i,1);break}}
+      flashKey=f;buzz(28)}
     else{buzz(28);return}}
+  else if(t.id==='part'){S.part=!S.part;cur.log.push({a:'part'});buzz(12)}
+  else if(t.id==='undo'){undoCur();buzz(28)}
+  else if(t.id==='setcommit'){if(!commitSet())return;buzz(12)}
+  else if(ds.q){const k=ds.q;quest[k]++;quest.log.push(k);flashKey=k;buzz(12)}
+  else if(t.id==='qundo'){const k=quest.log.pop();if(k&&quest[k]>0){quest[k]--;flashKey=k}buzz(28)}
   else if(ds.v){const v=ds.v,d=Number(ds.vd);
     if(d>0){voice[v]=(voice[v]||0)+1;voice.log.push(v);flashKey=v;buzz(12)}
     else if(voice[v]>0){voice[v]--;const i=voice.log.lastIndexOf(v);if(i>=0)voice.log.splice(i,1);flashKey=v;buzz(28)}
     else{buzz(28);return}}
   else if(t.id==='vundo'){const k=voice.log.pop();if(k&&voice[k]>0){voice[k]--;flashKey=k}buzz(28)}
-  else if(t.id==='undo'){const k=cur.log.pop();if(k&&cur[k]>0){cur[k]--;flashKey=k}buzz(28)}
   else if(t.id==='commit'){
-    if(setsOf(cur)===0)return;
     if(!cur.role){buzz(28);
       alert('有利区間 1G目の成立役が未選択です。\n画面上部の4つから1つ選んでから確定してください。');return}
-    const c={...cur};delete c.log;ivs.push(c);cur=BLANK();buzz(12)}
+    if(!setEmpty(S)){
+      if(!confirm('入力途中のセットがあります。\nこのセットも確定してから区間を締めますか？'))return;
+      if(!commitSet())return}
+    if(!cur.sets.length)return;
+    ivs.push({t:7,role:cur.role,start:cur.start,lv4:cur.lv4,sets:cur.sets});cur=BLANK();buzz(12)}
   else if(ds.del!==undefined){
     const i=Number(ds.del),iv=ivs[i];if(!iv)return;
-    if(!confirm(`${String(i+1).padStart(2,'0')}番の区間を削除します。\n`
-      +`${roleName(iv.role)} ／ ${setsOf(iv)}set・SKW${iv.a1+iv.b1}・風呂${iv.bathK}/${iv.bathN}\n`
-      +`よろしいですか？`))return;
+    if(!confirm(`${String(i+1).padStart(2,'0')}番の区間を削除します。\n${roleName(iv.role)} ／ ${ivText(iv)}\nよろしいですか？`))return;
     ivs.splice(i,1)}
   else if(t.id==='reset'){
     const ts=ivs.reduce((a,i)=>a+setsOf(i),0);
-    if(!confirm(`${ivs.length}区間（${ts}set）とボイス${voiceTot()}件を全て消去します。\n元に戻せません。`))return;
-    ivs=[];cur=BLANK();voice=VBLANK()}
+    if(!confirm(`${ivs.length}区間（${ts}set）・入力中の区間・クエスト${questTot()}件・ボイス${voiceTot()}件を全て消去します。\n元に戻せません。`))return;
+    ivs=[];cur=BLANK();voice=VBLANK();quest=QBLANK()}
   else return;
   save();draw();
 }
